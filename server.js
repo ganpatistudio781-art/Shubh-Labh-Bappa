@@ -1,26 +1,19 @@
 const express = require("express");
 const multer = require("multer");
-const { createCanvas, loadImage } = require("canvas");
-const fs = require("fs");
+const Jimp = require("jimp");
 const path = require("path");
 
 const app = express();
 
-// Static files
 app.use(express.static("public"));
-
-// Form parser (mobile fix)
 app.use(express.urlencoded({ extended: true }));
 
-// Upload config
 const upload = multer({ dest: "uploads/" });
 
-// Homepage
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Generate poster
 app.post("/generate", upload.single("photo"), async (req, res) => {
 
   try {
@@ -28,50 +21,44 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     const name = req.body.name;
     const number = req.body.number;
 
-    const template = await loadImage("template-upload/poster-template.png");
+    const template = await Jimp.read("template-upload/poster-template.png");
+    const photo = await Jimp.read(req.file.path);
 
-    const posterWidth = 1080;
-    const posterHeight = 1350;
+    // resize photo
+    photo.cover(384, 384);
 
-    const canvas = createCanvas(posterWidth, posterHeight);
-    const ctx = canvas.getContext("2d");
+    // place photo
+    template.composite(photo, 348, 530);
 
-    ctx.drawImage(template, 0, 0, posterWidth, posterHeight);
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-    const photo = await loadImage(req.file.path);
+    // name
+    template.print(
+      font,
+      0,
+      950,
+      {
+        text: name,
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
+      },
+      1080
+    );
 
-    const centerX = 540;
-    const centerY = 722;
-    const diameter = 384;
-    const radius = diameter / 2;
-
-    // Perfect circle crop
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-
-    ctx.drawImage(photo, centerX - radius, centerY - radius, diameter, diameter);
-
-    ctx.restore();
-
-    // Text style
-    ctx.textAlign = "center";
-    ctx.font = "bold 40px Arial";
-    ctx.fillStyle = "#ff4d00";
-
-    // Name
-    ctx.fillText(name, 540, 950);
-
-    // Mobile
-    ctx.fillText(number, 540, 1040);
+    // number
+    template.print(
+      font,
+      0,
+      1040,
+      {
+        text: number,
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
+      },
+      1080
+    );
 
     const fileName = "poster-" + Date.now() + ".png";
 
-    const buffer = canvas.toBuffer("image/png");
-
-    fs.writeFileSync("public/" + fileName, buffer);
+    await template.writeAsync("public/" + fileName);
 
     res.send(`
     <html>
@@ -100,7 +87,6 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
 });
 
-// Cloud port fix
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
