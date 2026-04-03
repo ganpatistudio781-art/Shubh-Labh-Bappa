@@ -9,10 +9,13 @@ const app = express();
 // Static folder
 app.use(express.static("public"));
 
+// Form body parser
+app.use(express.urlencoded({ extended: true }));
+
 // Upload config
 const upload = multer({ dest: "uploads/" });
 
-// Homepage route
+// Homepage
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -85,7 +88,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
 });
 
-// PORT fix for hosting
+// Railway PORT fix
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
