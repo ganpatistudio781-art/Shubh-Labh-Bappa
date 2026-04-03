@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const Jimp = require("jimp");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
@@ -24,4 +25,48 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     const template = await Jimp.read("template-upload/poster-template.png");
     const photo = await Jimp.read(req.file.path);
 
-    // resize photo without
+    // resize photo
+    photo.resize(384, 384);
+
+    // place photo
+    template.composite(photo, 348, 530);
+
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+
+    template.print(font, 0, 950, name, 1080);
+    template.print(font, 0, 1040, number, 1080);
+
+    const fileName = "poster-" + Date.now() + ".png";
+
+    await template.writeAsync("public/" + fileName);
+
+    res.send(`
+      <html>
+      <body style="text-align:center;font-family:Arial">
+
+      <h2>Poster Ready 🎉</h2>
+
+      <img src="/${fileName}" style="width:350px"><br><br>
+
+      <a href="/${fileName}" download>
+      <button style="padding:10px 20px;font-size:16px">
+      Download Poster
+      </button>
+      </a>
+
+      </body>
+      </html>
+    `);
+
+  } catch (error) {
+    console.log(error);
+    res.send("Error generating poster");
+  }
+
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server chal raha hai");
+});
