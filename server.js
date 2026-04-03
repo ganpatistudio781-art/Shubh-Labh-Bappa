@@ -24,29 +24,19 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     const template = await Jimp.read("template-upload/poster-template.png");
     const photo = await Jimp.read(req.file.path);
 
-    // poster size
-    const posterWidth = 1080;
-    const posterHeight = 1350;
-
-    // circle parameters
-    const centerX = 540;
-    const centerY = 722;
-    const diameter = 384;
-    const radius = diameter / 2;
-
     // resize photo
-    photo.resize(diameter, diameter);
+    photo.resize(384, 384);
 
-    // create circle mask
-    const mask = new Jimp(diameter, diameter, 0x00000000);
+    // circle mask
+    const mask = new Jimp(384, 384, 0x00000000);
 
-    mask.scan(0, 0, diameter, diameter, function (x, y, idx) {
+    mask.scan(0, 0, 384, 384, function (x, y, idx) {
 
-      const dx = x - radius;
-      const dy = y - radius;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const dx = x - 192;
+      const dy = y - 192;
+      const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (dist <= radius) {
+      if (distance <= 192) {
         this.bitmap.data[idx + 3] = 255;
       } else {
         this.bitmap.data[idx + 3] = 0;
@@ -56,23 +46,22 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     photo.mask(mask, 0, 0);
 
-    // place photo
-    template.composite(photo, centerX - radius, centerY - radius);
+    // place photo center
+    template.composite(photo, 348, 530);
 
-    // font
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
     // name
     template.print(font, 0, 950, {
       text: name,
       alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
-    }, posterWidth);
+    }, 1080);
 
-    // mobile number
+    // mobile
     template.print(font, 0, 1040, {
       text: number,
       alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
-    }, posterWidth);
+    }, 1080);
 
     const fileName = "poster-" + Date.now() + ".png";
 
@@ -104,4 +93,8 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
 });
 
-const PORT =
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server chal raha hai");
+});
