@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
-const Jimp = require("jimp");
+const { createCanvas, loadImage } = require("canvas");
+const fs = require("fs");
 const path = require("path");
 
 const app = express();
@@ -15,83 +16,81 @@ app.get("/", (req, res) => {
 });
 
 app.post("/generate", upload.single("photo"), async (req, res) => {
-  try {
 
-    const name = req.body.name;
-    const number = req.body.number;
+  const name = req.body.name;
+  const number = req.body.number;
 
-    const template = await Jimp.read("template-upload/poster-template.png");
-    const photo = await Jimp.read(req.file.path);
+  const template = await loadImage("template-upload/poster-template.png");
 
-    // resize photo
-    photo.cover(384, 384);   // auto crop + fit
+  const posterWidth = 1080;
+  const posterHeight = 1350;
 
-    // circle mask
-    const circle = new Jimp(384, 384, 0x00000000);
-    circle.scan(0, 0, 384, 384, function (x, y, idx) {
-      const dx = x - 192;
-      const dy = y - 192;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 192) {
-        this.bitmap.data[idx + 3] = 255;
-      } else {
-        this.bitmap.data[idx + 3] = 0;
-      }
-    });
+  const canvas = createCanvas(posterWidth, posterHeight);
+  const ctx = canvas.getContext("2d");
 
-    photo.mask(circle, 0, 0);
+  ctx.drawImage(template, 0, 0, posterWidth, posterHeight);
 
-    // correct position (centerX - radius , centerY - radius)
-    template.composite(photo, 348, 530);
+  const photo = await loadImage(req.file.path);
 
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+  const centerX = 540;
+  const centerY = 722;
+  const diameter = 384;
+  const radius = diameter / 2;
 
-    // name
-    template.print(
-      font,
-      0,
-      950,
-      {
-        text: name,
-        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
-      },
-      1080
-    );
+  // Circle crop
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
 
-    // mobile
-    template.print(
-      font,
-      0,
-      1040,
-      {
-        text: number,
-        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
-      },
-      1080
-    );
+  ctx.drawImage(photo, centerX - radius, centerY - radius, diameter, diameter);
 
-    const fileName = "poster-" + Date.now() + ".png";
+  ctx.restore();
 
-    await template.writeAsync("public/" + fileName);
+  // Text style
+  ctx.textAlign = "center";
+  ctx.font = "bold 40px Arial";
+  ctx.fillStyle = "#ff4d00";
 
-    res.send(`
-    <html>
-    <body style="text-align:center;font-family:Arial">
-    <h2>Poster Ready 🎉</h2>
-    <img src="/${fileName}" style="width:350px"><br><br>
-    <a href="/${fileName}" download>
-    <button style="padding:10px 20px;font-size:16px">
-    Download Poster
-    </button>
-    </a>
-    </body>
-    </html>
-    `);
+  ctx.fillText(name, 540, 950);
+  ctx.fillText(number, 540, 1040);
 
-  } catch (err) {
-    console.log(err);
-    res.send("Poster generate error");
-  }
+  const fileName = "poster-" + Date.now() + ".png";
+
+  const buffer = canvas.toBuffer("image/png");
+
+  fs.writeFileSync("public/" + fileName, buffer);
+
+  res.send(`
+  <html>
+  <head>
+  <title>Poster Ready</title>
+  </head>
+  <body style="text-align:center;font-family:Arial">
+
+  <h2>Poster Ready 🎉</h2>
+
+  <img src="/${fileName}" style="width:350px"><br><br>
+
+  <a href="/${fileName}" download>
+  <button style="padding:10px 20px;font-size:16px">
+  Download Poster
+  </button>
+  </a>
+
+  <br><br>
+
+  <a href="https://wa.me/?text=Check this poster ${fileName}">
+  <button style="padding:10px 20px;background:green;color:white">
+  Share on WhatsApp
+  </button>
+  </a>
+
+  </body>
+  </html>
+  `);
+
 });
 
 const PORT = process.env.PORT || 3000;
