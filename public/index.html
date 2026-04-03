@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Shubh Labh Poster Generator</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+}
+
+.header{
+background:#ff6a00;
+color:white;
+padding:15px;
+text-align:center;
+font-size:22px;
+position:relative;
+}
+
+.left-corner{
+position:absolute;
+left:10px;
+top:15px;
+font-size:14px;
+}
+
+.right-corner{
+position:absolute;
+right:10px;
+top:15px;
+font-size:14px;
+}
+
+.container{
+max-width:450px;
+margin:auto;
+background:white;
+padding:20px;
+margin-top:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.poster-preview img{
+width:100%;
+border-radius:10px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#ff6a00;
+border:none;
+color:white;
+font-size:16px;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#e55d00;
+}
+
+.youtube{
+display:block;
+margin-top:15px;
+background:red;
+color:white;
+text-decoration:none;
+padding:10px;
+border-radius:5px;
+text-align:center;
+}
+
+.footer{
+text-align:center;
+margin-top:20px;
+padding:10px;
+color:#777;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<div class="left-corner">
+Shubh Labh Bappa
+</div>
+
+Shubh Labh Festival Poster Generator
+
+<div class="right-corner">
+Ganpati Studio
+</div>
+
+</div>
+
+<div class="container">
+
+<div class="poster-preview">
+<img src="poster-preview.png">
+</div>
+
+<form action="/generate" method="POST" enctype="multipart/form-data">
+
+<input type="text" name="name" placeholder="Enter Your Name">
+
+<input type="text" name="number" placeholder="Mobile Number">
+
+<input type="file" name="photo">
+
+<button type="submit">Generate Poster</button>
+
+</form>
+
+<a class="youtube" href="https://youtube.com/@ganpati_shubhlabh23?si=MFL6abbDMBVQT9Z4" target="_blank">
+Visit Our YouTube Channel
+</a>
+
+</div>
+
+<div class="footer">
+Powered by Shubh Labh Bappa
+</div>
+
+</body>
+
+</html>
