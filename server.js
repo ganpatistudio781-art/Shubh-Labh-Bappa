@@ -6,21 +6,26 @@ const path = require("path");
 
 const app = express();
 
-// Static folder
+// Static files
 app.use(express.static("public"));
 
-// Form body parser
+// Form data parser
 app.use(express.urlencoded({ extended: true }));
 
 // Upload config
 const upload = multer({ dest: "uploads/" });
+
+// Health check (Railway ke liye)
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
 
 // Homepage
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Poster generate route
+// Poster generate
 app.post("/generate", upload.single("photo"), async (req, res) => {
 
   const name = req.body.name;
@@ -71,24 +76,18 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
   res.send(`
   <html>
   <body style="text-align:center;font-family:Arial">
-
   <h2>Poster Ready 🎉</h2>
-
   <img src="/${fileName}" style="width:350px"><br><br>
-
   <a href="/${fileName}" download>
-  <button style="padding:10px 20px;font-size:16px">
-  Download Poster
-  </button>
+  <button style="padding:10px 20px;font-size:16px">Download Poster</button>
   </a>
-
   </body>
   </html>
   `);
 
 });
 
-// Railway PORT fix
+// PORT fix for hosting
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
