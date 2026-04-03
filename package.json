@@ -1,6 +1,7 @@
 {
   "name": "poster-project",
   "version": "1.0.0",
+  "description": "Festival Poster Generator",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
