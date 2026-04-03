@@ -6,93 +6,101 @@ const path = require("path");
 
 const app = express();
 
+// Static files
 app.use(express.static("public"));
+
+// Form parser (mobile fix)
 app.use(express.urlencoded({ extended: true }));
 
+// Upload config
 const upload = multer({ dest: "uploads/" });
 
+// Homepage
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Generate poster
 app.post("/generate", upload.single("photo"), async (req, res) => {
 
-  const name = req.body.name;
-  const number = req.body.number;
+  try {
 
-  const template = await loadImage("template-upload/poster-template.png");
+    const name = req.body.name;
+    const number = req.body.number;
 
-  const posterWidth = 1080;
-  const posterHeight = 1350;
+    const template = await loadImage("template-upload/poster-template.png");
 
-  const canvas = createCanvas(posterWidth, posterHeight);
-  const ctx = canvas.getContext("2d");
+    const posterWidth = 1080;
+    const posterHeight = 1350;
 
-  ctx.drawImage(template, 0, 0, posterWidth, posterHeight);
+    const canvas = createCanvas(posterWidth, posterHeight);
+    const ctx = canvas.getContext("2d");
 
-  const photo = await loadImage(req.file.path);
+    ctx.drawImage(template, 0, 0, posterWidth, posterHeight);
 
-  const centerX = 540;
-  const centerY = 722;
-  const diameter = 384;
-  const radius = diameter / 2;
+    const photo = await loadImage(req.file.path);
 
-  // Circle crop
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
+    const centerX = 540;
+    const centerY = 722;
+    const diameter = 384;
+    const radius = diameter / 2;
 
-  ctx.drawImage(photo, centerX - radius, centerY - radius, diameter, diameter);
+    // Perfect circle crop
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
 
-  ctx.restore();
+    ctx.drawImage(photo, centerX - radius, centerY - radius, diameter, diameter);
 
-  // Text style
-  ctx.textAlign = "center";
-  ctx.font = "bold 40px Arial";
-  ctx.fillStyle = "#ff4d00";
+    ctx.restore();
 
-  ctx.fillText(name, 540, 950);
-  ctx.fillText(number, 540, 1040);
+    // Text style
+    ctx.textAlign = "center";
+    ctx.font = "bold 40px Arial";
+    ctx.fillStyle = "#ff4d00";
 
-  const fileName = "poster-" + Date.now() + ".png";
+    // Name
+    ctx.fillText(name, 540, 950);
 
-  const buffer = canvas.toBuffer("image/png");
+    // Mobile
+    ctx.fillText(number, 540, 1040);
 
-  fs.writeFileSync("public/" + fileName, buffer);
+    const fileName = "poster-" + Date.now() + ".png";
 
-  res.send(`
-  <html>
-  <head>
-  <title>Poster Ready</title>
-  </head>
-  <body style="text-align:center;font-family:Arial">
+    const buffer = canvas.toBuffer("image/png");
 
-  <h2>Poster Ready 🎉</h2>
+    fs.writeFileSync("public/" + fileName, buffer);
 
-  <img src="/${fileName}" style="width:350px"><br><br>
+    res.send(`
+    <html>
+    <body style="text-align:center;font-family:Arial">
 
-  <a href="/${fileName}" download>
-  <button style="padding:10px 20px;font-size:16px">
-  Download Poster
-  </button>
-  </a>
+    <h2>Poster Ready 🎉</h2>
 
-  <br><br>
+    <img src="/${fileName}" style="width:350px"><br><br>
 
-  <a href="https://wa.me/?text=Check this poster ${fileName}">
-  <button style="padding:10px 20px;background:green;color:white">
-  Share on WhatsApp
-  </button>
-  </a>
+    <a href="/${fileName}" download>
+    <button style="padding:10px 20px;font-size:16px">
+    Download Poster
+    </button>
+    </a>
 
-  </body>
-  </html>
-  `);
+    </body>
+    </html>
+    `);
+
+  } catch (err) {
+
+    console.log(err);
+    res.send("Poster generate error");
+
+  }
 
 });
 
+// Cloud port fix
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
