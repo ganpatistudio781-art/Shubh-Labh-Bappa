@@ -2,7 +2,6 @@ const express = require("express");
 const multer = require("multer");
 const Jimp = require("jimp");
 const path = require("path");
-const fs = require("fs");
 
 const app = express();
 
@@ -16,6 +15,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/generate", upload.single("photo"), async (req, res) => {
+
   try {
 
     const name = req.body.name;
@@ -24,26 +24,55 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     const template = await Jimp.read("template-upload/poster-template.png");
     const photo = await Jimp.read(req.file.path);
 
-    // resize photo
-    photo.resize(380, 380);
+    // poster size
+    const posterWidth = 1080;
+    const posterHeight = 1350;
 
-    // place photo on poster
-    template.composite(photo, 350, 520);
+    // circle parameters
+    const centerX = 540;
+    const centerY = 722;
+    const diameter = 384;
+    const radius = diameter / 2;
+
+    // resize photo
+    photo.resize(diameter, diameter);
+
+    // create circle mask
+    const mask = new Jimp(diameter, diameter, 0x00000000);
+
+    mask.scan(0, 0, diameter, diameter, function (x, y, idx) {
+
+      const dx = x - radius;
+      const dy = y - radius;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist <= radius) {
+        this.bitmap.data[idx + 3] = 255;
+      } else {
+        this.bitmap.data[idx + 3] = 0;
+      }
+
+    });
+
+    photo.mask(mask, 0, 0);
+
+    // place photo
+    template.composite(photo, centerX - radius, centerY - radius);
 
     // font
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-    // print name
+    // name
     template.print(font, 0, 950, {
       text: name,
       alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
-    }, 1080);
+    }, posterWidth);
 
-    // print number
-    template.print(font, 0, 1000, {
+    // mobile number
+    template.print(font, 0, 1040, {
       text: number,
       alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
-    }, 1080);
+    }, posterWidth);
 
     const fileName = "poster-" + Date.now() + ".png";
 
@@ -66,14 +95,13 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     </html>
     `);
 
-  } catch (error) {
-    console.log(error);
-    res.send("Error generating poster");
+  } catch (err) {
+
+    console.log(err);
+    res.send("Poster generate error");
+
   }
+
 });
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server chal raha hai");
-});
+const PORT =
