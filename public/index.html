@@ -3,6 +3,8 @@
 
 <head>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Shubh Labh Poster Generator</title>
 
 <style>
@@ -48,6 +50,10 @@ box-shadow:0 0 10px rgba(0,0,0,0.2);
 
 .poster-preview img{
 width:100%;
+max-width:350px;
+height:auto;
+display:block;
+margin:auto;
 border-radius:10px;
 }
 
@@ -68,10 +74,6 @@ color:white;
 font-size:16px;
 border-radius:5px;
 cursor:pointer;
-}
-
-button:hover{
-background:#e55d00;
 }
 
 .youtube{
@@ -124,7 +126,7 @@ Ganpati Studio
 
 <input type="text" name="number" placeholder="Mobile Number" required>
 
-<input type="file" name="photo" required>
+<input type="file" name="photo" accept="image/*" capture="environment" required>
 
 <button type="submit">Generate Poster</button>
 
