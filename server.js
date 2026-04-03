@@ -1,13 +1,75 @@
 const express = require("express");
+const multer = require("multer");
+const Jimp = require("jimp");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
+
+const upload = multer({ dest: "uploads/" });
+
 app.get("/", (req, res) => {
-  res.send("Website chal rahi hai 🎉");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.get("/health", (req, res) => {
-  res.send("OK");
+app.post("/generate", upload.single("photo"), async (req, res) => {
+  try {
+
+    const name = req.body.name;
+    const number = req.body.number;
+
+    const template = await Jimp.read("template-upload/poster-template.png");
+    const photo = await Jimp.read(req.file.path);
+
+    // resize photo
+    photo.resize(380, 380);
+
+    // place photo on poster
+    template.composite(photo, 350, 520);
+
+    // font
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+
+    // print name
+    template.print(font, 0, 950, {
+      text: name,
+      alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
+    }, 1080);
+
+    // print number
+    template.print(font, 0, 1000, {
+      text: number,
+      alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
+    }, 1080);
+
+    const fileName = "poster-" + Date.now() + ".png";
+
+    await template.writeAsync("public/" + fileName);
+
+    res.send(`
+    <html>
+    <body style="text-align:center;font-family:Arial">
+    <h2>Poster Ready 🎉</h2>
+
+    <img src="/${fileName}" style="width:350px"><br><br>
+
+    <a href="/${fileName}" download>
+    <button style="padding:10px 20px;font-size:16px">
+    Download Poster
+    </button>
+    </a>
+
+    </body>
+    </html>
+    `);
+
+  } catch (error) {
+    console.log(error);
+    res.send("Error generating poster");
+  }
 });
 
 const PORT = process.env.PORT || 3000;
