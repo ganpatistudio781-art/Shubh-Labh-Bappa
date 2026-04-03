@@ -2,13 +2,22 @@ const express = require("express");
 const multer = require("multer");
 const { createCanvas, loadImage } = require("canvas");
 const fs = require("fs");
+const path = require("path");
 
 const app = express();
 
+// Static folder
 app.use(express.static("public"));
 
+// Upload config
 const upload = multer({ dest: "uploads/" });
 
+// Homepage route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Poster generate route
 app.post("/generate", upload.single("photo"), async (req, res) => {
 
   const name = req.body.name;
@@ -16,13 +25,13 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
   const template = await loadImage("template-upload/poster-template.png");
 
-  const posterWidth = 1080;
-  const posterHeight = 1350;
+  const width = 1080;
+  const height = 1350;
 
-  const canvas = createCanvas(posterWidth, posterHeight);
+  const canvas = createCanvas(width, height);
   const ctx = canvas.getContext("2d");
 
-  ctx.drawImage(template, 0, 0, posterWidth, posterHeight);
+  ctx.drawImage(template, 0, 0, width, height);
 
   const photo = await loadImage(req.file.path);
 
@@ -47,10 +56,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
   ctx.font = "bold 40px Arial";
   ctx.fillStyle = "#ff4d00";
 
-  // Name
   ctx.fillText(name, 540, 1000);
-
-  // Number
   ctx.fillText(number, 540, 1080);
 
   const fileName = "poster-" + Date.now() + ".png";
@@ -73,21 +79,13 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
   </button>
   </a>
 
-  <br><br>
-
-  <a href="https://wa.me/?text=Check this poster ${fileName}">
-  <button style="padding:10px 20px;background:green;color:white">
-  Share on WhatsApp
-  </button>
-  </a>
-
   </body>
   </html>
   `);
 
 });
 
-// IMPORTANT FOR HOSTING
+// PORT fix for hosting
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
