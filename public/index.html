@@ -1,138 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Shubh Labh Poster Generator</title>
+
+<link
+href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+rel="stylesheet"
+/>
+
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f2f2f2;
-  margin: 0;
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
 }
 
-/* Header styling */
-.header {
-  background: #ff6a00;
-  color: white;
-  padding: 40px 15px 15px 15px; /* extra top padding for mobile */
-  text-align: center;
-  font-size: 22px;
-  position: relative;
+.header{
+background:#ff6a00;
+color:white;
+padding:20px;
+text-align:center;
+font-size:22px;
 }
 
-.left-corner {
-  position: absolute;
-  left: 10px;
-  top: 15px;
-  font-size: 14px;
+.container{
+max-width:450px;
+margin:auto;
+background:white;
+padding:20px;
+margin-top:20px;
+border-radius:10px;
 }
 
-.right-corner {
-  position: absolute;
-  right: 10px;
-  top: 15px;
-  font-size: 14px;
+img{
+max-width:100%;
 }
 
-/* Container styling */
-.container {
-  max-width: 450px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+button{
+width:100%;
+padding:12px;
+background:#ff6a00;
+border:none;
+color:white;
+font-size:16px;
+border-radius:5px;
+margin-top:10px;
 }
 
-.poster-preview img {
-  width: 100%;
-  max-width: 350px;
-  height: auto;
-  display: block;
-  margin: auto;
-  border-radius: 10px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  background: #ff6a00;
-  border: none;
-  color: white;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.youtube {
-  display: block;
-  margin-top: 15px;
-  background: red;
-  color: white;
-  text-decoration: none;
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.footer {
-  text-align: center;
-  margin-top: 20px;
-  padding: 10px;
-  color: #777;
-}
-
-/* Mobile responsive header fix */
-@media (max-width: 480px) {
-  .header {
-    padding-top: 60px; /* center text neeche aayega */
-    font-size: 20px;
-  }
-  .left-corner, .right-corner {
-    top: 5px;
-    font-size: 12px;
-  }
-}
 </style>
+
 </head>
+
 <body>
 
 <div class="header">
-  <div class="left-corner">Shubh Labh Bappa</div>
-  Shubh Labh Festival Poster Generator
-  <div class="right-corner">Ganpati Studio</div>
+Shubh Labh Poster Generator
 </div>
 
 <div class="container">
-  <div class="poster-preview">
-    <img src="poster-preview.png" alt="Poster Preview">
-  </div>
 
-  <form action="/generate" method="POST" enctype="multipart/form-data">
-    <input type="text" name="name" placeholder="Enter Your Name" required>
-    <input type="text" name="number" placeholder="Mobile Number" required>
-    <input type="file" name="photo" accept="image/*" capture="environment" required>
-    <button type="submit">Generate Poster</button>
-  </form>
+<form id="form" method="POST" action="/generate" enctype="multipart/form-data">
 
-  <a class="youtube" href="https://youtube.com/@ganpati_shubhlabh23?si=MFL6abbDMBVQT9Z4" target="_blank">
-    Visit Our YouTube Channel
-  </a>
+<input type="text" name="name" placeholder="Enter Name" required>
+
+<input type="text" name="number" placeholder="Mobile Number" required>
+
+<input type="file" id="photoInput" name="photo" accept="image/*" required>
+
+<br><br>
+
+<img id="preview">
+
+<button type="submit">Generate Poster</button>
+
+</form>
+
 </div>
 
-<div class="footer">
-  Powered by Shubh Labh Bappa
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+
+let cropper;
+
+const input = document.getElementById("photoInput");
+const preview = document.getElementById("preview");
+
+input.onchange = (e) => {
+
+const file = e.target.files[0];
+
+const url = URL.createObjectURL(file);
+
+preview.src = url;
+
+if(cropper){
+cropper.destroy();
+}
+
+cropper = new Cropper(preview,{
+aspectRatio:245/342,
+viewMode:1,
+zoomable:true,
+scalable:true
+});
+
+};
+
+</script>
 
 </body>
 </html>
