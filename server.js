@@ -27,7 +27,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     const photo = await Jimp.read(req.file.path);
 
-    // photo crop size
+    // auto crop
     photo.cover(
       245,
       342,
@@ -35,7 +35,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
       Jimp.VERTICAL_ALIGN_MIDDLE
     );
 
-    // photo position
+    // place photo
     template.composite(photo, 78, 580);
 
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
@@ -48,8 +48,38 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     const fileName = "poster-" + Date.now() + ".png";
 
-    await template.writeAsync(path.join("public", fileName));
+    await template.writeAsync(path.join(__dirname, "public", fileName));
 
     res.send(`
       <html>
-      <body style="text-align:center;font-family:Arial
+      <body style="text-align:center;font-family:Arial">
+
+      <h2>Poster Ready 🎉</h2>
+
+      <img src="/${fileName}" style="width:350px"><br><br>
+
+      <a href="/${fileName}" download>
+      <button style="padding:10px 20px;font-size:16px">
+      Download Poster
+      </button>
+      </a>
+
+      </body>
+      </html>
+    `);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send("Error generating poster");
+
+  }
+
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
