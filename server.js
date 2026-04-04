@@ -6,19 +6,15 @@ const fs = require("fs");
 
 const app = express();
 
-// middleware
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
-// multer upload setup
 const upload = multer({ dest: "uploads/" });
 
-// home page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// poster generate route
 app.post("/generate", upload.single("photo"), async (req, res) => {
 
   try {
@@ -35,11 +31,16 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     const photo = await Jimp.read(photoPath);
 
-    // resize user photo
-    photo.cover(285, 305);
+    // photo crop and resize
+    photo.cover(
+      285,
+      305,
+      Jimp.HORIZONTAL_ALIGN_CENTER,
+      Jimp.VERTICAL_ALIGN_MIDDLE
+    );
 
     // place photo
-    template.composite(photo, 75, 495);
+    template.composite(photo, 75, 520);
 
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
@@ -47,7 +48,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     template.print(
       font,
       115,
-      882,
+      910,
       { text: name },
       260
     );
@@ -56,7 +57,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     template.print(
       font,
       115,
-      945,
+      970,
       { text: number },
       260
     );
@@ -67,7 +68,6 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     await template.writeAsync(outputPath);
 
-    // delete uploaded photo
     fs.unlinkSync(photoPath);
 
     res.send(`
@@ -101,7 +101,5 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-
   console.log("Server chal raha hai port", PORT);
-
 });
