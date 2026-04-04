@@ -1,72 +1,42 @@
-const express = require("express");
-const multer = require("multer");
 const Jimp = require("jimp");
 const path = require("path");
-const fs = require("fs");
 
-const app = express();
+// Load template and user photo
+const template = await Jimp.read(path.join(__dirname, "template-upload/poster-template.png"));
+const photo = await Jimp.read(userPhotoPath);
 
-app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
+// Resize photo to given width and height
+photo.cover(285, 305); // maintain aspect ratio
 
-const upload = multer({ dest: "uploads/" });
+// Place photo at given coordinates
+template.composite(photo, 75, 495); // X=75, Y=495
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// Load font
+const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-app.post("/generate", upload.single("photo"), async (req, res) => {
+// Print user name
+template.print(
+  font,
+  115,  // X position
+  882,  // Y position
+  {
+    text: userName,
+    alignmentX: Jimp.HORIZONTAL_ALIGN_LEFT, // left align in this box
+  },
+  260 // Max width
+);
 
-  try {
+// Print mobile number
+template.print(
+  font,
+  115,  // X position
+  945,  // Y position
+  {
+    text: userNumber,
+    alignmentX: Jimp.HORIZONTAL_ALIGN_LEFT,
+  },
+  260 // Max width
+);
 
-    const name = req.body.name;
-    const number = req.body.number;
-
-    const template = await Jimp.read("template-upload/poster-template.png");
-    const photo = await Jimp.read(req.file.path);
-
-    // resize photo
-    photo.resize(384, 384);
-
-    // place photo
-    template.composite(photo, 348, 530);
-
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
-
-    template.print(font, 0, 950, name, 1080);
-    template.print(font, 0, 1040, number, 1080);
-
-    const fileName = "poster-" + Date.now() + ".png";
-
-    await template.writeAsync("public/" + fileName);
-
-    res.send(`
-      <html>
-      <body style="text-align:center;font-family:Arial">
-
-      <h2>Poster Ready 🎉</h2>
-
-      <img src="/${fileName}" style="width:350px"><br><br>
-
-      <a href="/${fileName}" download>
-      <button style="padding:10px 20px;font-size:16px">
-      Download Poster
-      </button>
-      </a>
-
-      </body>
-      </html>
-    `);
-
-  } catch (error) {
-    console.log(error);
-    res.send("Error generating poster");
-  }
-
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server chal raha hai");
-});
+// Save final poster
+await template.writeAsync(path.join(__dirname, "public/final-poster.png"));
