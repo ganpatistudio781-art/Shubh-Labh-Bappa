@@ -2,7 +2,6 @@ const express = require("express");
 const multer = require("multer");
 const Jimp = require("jimp");
 const path = require("path");
-const fs = require("fs");
 
 const app = express();
 
@@ -24,14 +23,14 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     const photoPath = req.file.path;
 
-    // load template
+    // template load
     const template = await Jimp.read(
       path.join(__dirname, "template-upload", "Poster-template.png")
     );
 
     const photo = await Jimp.read(photoPath);
 
-    // crop and resize photo
+    // crop photo
     photo.cover(
       285,
       305,
@@ -44,21 +43,16 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-    // print name
+    // add name
     template.print(font, 115, 910, name, 260);
 
-    // print number
+    // add number
     template.print(font, 115, 970, number, 260);
 
     const fileName = "poster-" + Date.now() + ".png";
 
-    const outputPath = path.join(__dirname, "public", fileName);
-
     // save poster
-    await template.writeAsync(outputPath);
-
-    // delete uploaded photo
-    fs.unlinkSync(photoPath);
+    await template.writeAsync(path.join("public", fileName));
 
     res.send(`
       <html>
@@ -66,7 +60,30 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
       <h2>Poster Ready 🎉</h2>
 
-      <img src="/${fileName}" style="width:350px;margin-top:20px"><br><br>
+      <img src="/${fileName}" style="width:350px"><br><br>
 
-      <a href="/${fileName}" download="${fileName}">
-      <
+      <a href="/${fileName}" download>
+      <button style="padding:10px 20px;font-size:16px">
+      Download Poster
+      </button>
+      </a>
+
+      </body>
+      </html>
+    `);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send("Error generating poster");
+
+  }
+
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
