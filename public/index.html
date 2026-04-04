@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Shubh Labh Poster Generator</title>
-
-<link
-href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-rel="stylesheet"
-/>
 
 <style>
 
@@ -22,9 +18,24 @@ margin:0;
 .header{
 background:#ff6a00;
 color:white;
-padding:20px;
+padding:40px 15px 15px 15px;
 text-align:center;
 font-size:22px;
+position:relative;
+}
+
+.left-corner{
+position:absolute;
+left:10px;
+top:10px;
+font-size:14px;
+}
+
+.right-corner{
+position:absolute;
+right:10px;
+top:10px;
+font-size:14px;
 }
 
 .container{
@@ -34,10 +45,24 @@ background:white;
 padding:20px;
 margin-top:20px;
 border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
 
-img{
-max-width:100%;
+.poster-preview img{
+width:100%;
+max-width:350px;
+height:auto;
+display:block;
+margin:auto;
+border-radius:10px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border:1px solid #ccc;
+border-radius:5px;
 }
 
 button{
@@ -48,7 +73,25 @@ border:none;
 color:white;
 font-size:16px;
 border-radius:5px;
-margin-top:10px;
+cursor:pointer;
+}
+
+.youtube{
+display:block;
+margin-top:15px;
+background:red;
+color:white;
+text-decoration:none;
+padding:10px;
+border-radius:5px;
+text-align:center;
+}
+
+.footer{
+text-align:center;
+margin-top:20px;
+padding:10px;
+color:#777;
 }
 
 </style>
@@ -58,60 +101,47 @@ margin-top:10px;
 <body>
 
 <div class="header">
-Shubh Labh Poster Generator
+
+<div class="left-corner">
+Shubh Labh Bappa
+</div>
+
+Shubh Labh Festival Poster Generator
+
+<div class="right-corner">
+Ganpati Studio
+</div>
+
 </div>
 
 <div class="container">
 
-<form id="form" method="POST" action="/generate" enctype="multipart/form-data">
+<div class="poster-preview">
+<img src="poster-preview.png">
+</div>
 
-<input type="text" name="name" placeholder="Enter Name" required>
+<form action="/generate" method="POST" enctype="multipart/form-data">
+
+<input type="text" name="name" placeholder="Enter Your Name" required>
 
 <input type="text" name="number" placeholder="Mobile Number" required>
 
-<input type="file" id="photoInput" name="photo" accept="image/*" required>
-
-<br><br>
-
-<img id="preview">
+<input type="file" name="photo" accept="image/*" capture="environment" required>
 
 <button type="submit">Generate Poster</button>
 
 </form>
 
+<a class="youtube" href="https://youtube.com/@ganpati_shubhlabh23?si=MFL6abbDMBVQT9Z4" target="_blank">
+Visit Our YouTube Channel
+</a>
+
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
-<script>
-
-let cropper;
-
-const input = document.getElementById("photoInput");
-const preview = document.getElementById("preview");
-
-input.onchange = (e) => {
-
-const file = e.target.files[0];
-
-const url = URL.createObjectURL(file);
-
-preview.src = url;
-
-if(cropper){
-cropper.destroy();
-}
-
-cropper = new Cropper(preview,{
-aspectRatio:245/342,
-viewMode:1,
-zoomable:true,
-scalable:true
-});
-
-};
-
-</script>
+<div class="footer">
+Powered by Shubh Labh Bappa
+</div>
 
 </body>
+
 </html>
