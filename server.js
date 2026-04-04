@@ -8,49 +8,53 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
+// Upload setup
 const upload = multer({ dest: "uploads/" });
 
+// Home page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Poster generate
 app.post("/generate", upload.single("photo"), async (req, res) => {
 
   try {
 
     const name = req.body.name;
     const number = req.body.number;
-
     const photoPath = req.file.path;
 
-    // template load
+    // Load template
     const template = await Jimp.read(
       path.join(__dirname, "template-upload", "Poster-template.png")
     );
 
+    // Load user photo
     const photo = await Jimp.read(photoPath);
 
-    // photo resize & crop
+    // Resize & crop photo according to frame
     photo.cover(
-      285,
-      305,
+      245,
+      342,
       Jimp.HORIZONTAL_ALIGN_CENTER,
       Jimp.VERTICAL_ALIGN_MIDDLE
     );
 
-    // photo position (neeche shift)
-    template.composite(photo, 75, 520);
+    // Place photo
+    template.composite(photo, 78, 580);
 
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-    // name position (neeche)
-    template.print(font, 115, 910, name, 260);
+    // Print name
+    template.print(font, 196, 1019, name, 260);
 
-    // number position (neeche)
-    template.print(font, 115, 975, number, 260);
+    // Print number
+    template.print(font, 196, 1098, number, 260);
 
     const fileName = "poster-" + Date.now() + ".png";
 
+    // Save poster
     await template.writeAsync(path.join("public", fileName));
 
     res.send(`
@@ -59,7 +63,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
       <h2>Poster Ready 🎉</h2>
 
-      <img src="/${fileName}" style="width:350px"><br><br>
+      <img src="/${fileName}" style="width:350px;margin-top:20px"><br><br>
 
       <a href="/${fileName}" download>
       <button style="padding:10px 20px;font-size:16px">
