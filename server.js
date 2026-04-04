@@ -2,6 +2,8 @@ const express = require("express");
 const multer = require("multer");
 const Jimp = require("jimp");
 const path = require("path");
+const fs = require("fs");
+const convert = require("heic-convert");
 
 const app = express();
 
@@ -21,19 +23,37 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
     const name = req.body.name;
     const number = req.body.number;
 
-    if (!req.file) {
-      throw new Error("Photo upload nahi hui");
+    let photoPath = req.file.path;
+
+    // Detect HEIC
+    if (
+      req.file.mimetype === "image/heic" ||
+      req.file.mimetype === "image/heif"
+    ) {
+
+      const inputBuffer = fs.readFileSync(photoPath);
+
+      const outputBuffer = await convert({
+        buffer: inputBuffer,
+        format: "JPEG",
+        quality: 1
+      });
+
+      const newPath = photoPath + ".jpg";
+
+      fs.writeFileSync(newPath, outputBuffer);
+
+      photoPath = newPath;
     }
 
-    const templatePath = path.join(__dirname, "template-upload", "Poster-template.png");
+    // Template load
+    const template = await Jimp.read(
+      path.join(__dirname, "template-upload", "Poster-template.png")
+    );
 
-    console.log("Template path:", templatePath);
+    // Photo load
+    const photo = await Jimp.read(photoPath);
 
-    const template = await Jimp.read(templatePath);
-
-    const photo = await Jimp.read(req.file.path);
-
-    // crop photo
     photo.cover(
       245,
       342,
@@ -41,15 +61,11 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
       Jimp.VERTICAL_ALIGN_MIDDLE
     );
 
-    // place photo
     template.composite(photo, 78, 580);
 
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-    // name
     template.print(font, 112, 1006, name, 260);
-
-    // number
     template.print(font, 112, 1080, number, 260);
 
     const fileName = "poster-" + Date.now() + ".png";
@@ -80,19 +96,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     console.log("ERROR:", err);
 
-    res.send(`
-      <html>
-      <body style="font-family:Arial;text-align:center;color:red">
-
-      <h2>Poster Generate Error ⚠️</h2>
-
-      <p>${err.message}</p>
-
-      <p>Console me bhi error check karo</p>
-
-      </body>
-      </html>
-    `);
+    res.send("Poster Generate Error ⚠️ <br>" + err.message);
 
   }
 
