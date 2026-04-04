@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -74,7 +75,6 @@ color:white;
 font-size:16px;
 border-radius:5px;
 cursor:pointer;
-margin-top:10px;
 }
 
 .youtube{
@@ -93,16 +93,6 @@ text-align:center;
 margin-top:20px;
 padding:10px;
 color:#777;
-}
-
-.file-btn{
-background:#ff6a00;
-color:white;
-padding:10px;
-text-align:center;
-border-radius:5px;
-margin-top:10px;
-cursor:pointer;
 }
 
 </style>
@@ -137,17 +127,8 @@ Ganpati Studio
 
 <input type="text" name="number" placeholder="Mobile Number" required>
 
-<!-- Gallery -->
-<label class="file-btn">
-Choose From Gallery
-<input type="file" name="photo" accept="image/*" style="display:none">
-</label>
-
-<!-- Camera -->
-<label class="file-btn">
-Take Photo
-<input type="file" name="photo" accept="image/*" capture="environment" style="display:none">
-</label>
+<!-- Camera + Gallery option -->
+<input type="file" name="photo" accept="image/*" required>
 
 <button type="submit">Generate Poster</button>
 
