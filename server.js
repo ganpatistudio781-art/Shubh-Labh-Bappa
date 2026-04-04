@@ -27,45 +27,50 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     const photo = await Jimp.read(req.file.path);
 
-    // auto crop
-    photo.cover(
-      245,
-      342,
-      Jimp.HORIZONTAL_ALIGN_CENTER,
-      Jimp.VERTICAL_ALIGN_MIDDLE
-    );
+    // crop photo
+    photo.cover(245,342,Jimp.HORIZONTAL_ALIGN_CENTER,Jimp.VERTICAL_ALIGN_MIDDLE);
 
     // place photo
-    template.composite(photo, 78, 580);
+    template.composite(photo,78,580);
 
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
     // name
-    template.print(font, 112, 1006, name, 260);
+    template.print(font,112,1006,name,260);
 
     // number
-    template.print(font, 112, 1080, number, 260);
+    template.print(font,112,1080,number,260);
 
     const fileName = "poster-" + Date.now() + ".png";
 
-    await template.writeAsync(path.join(__dirname, "public", fileName));
+    const outputPath = path.join(__dirname,"public",fileName);
+
+    await template.writeAsync(outputPath);
 
     res.send(`
-      <html>
-      <body style="text-align:center;font-family:Arial">
+    <html>
+    <body style="text-align:center;font-family:Arial;background:#f2f2f2">
 
-      <h2>Poster Ready 🎉</h2>
+    <h2>Poster Ready 🎉</h2>
 
-      <img src="/${fileName}" style="width:350px"><br><br>
+    <img src="/${fileName}" style="width:350px;border-radius:10px"><br><br>
 
-      <a href="/${fileName}" download>
-      <button style="padding:10px 20px;font-size:16px">
-      Download Poster
-      </button>
-      </a>
+    <a href="/${fileName}" download>
+    <button style="padding:10px 20px;font-size:16px;background:#ff6a00;color:white;border:none;border-radius:5px">
+    Download Poster
+    </button>
+    </a>
 
-      </body>
-      </html>
+    <br><br>
+
+    <a href="/" style="text-decoration:none">
+    <button style="padding:10px 20px;font-size:16px">
+    Create Another Poster
+    </button>
+    </a>
+
+    </body>
+    </html>
     `);
 
   } catch (err) {
