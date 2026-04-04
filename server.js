@@ -30,7 +30,7 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     const photo = await Jimp.read(photoPath);
 
-    // crop photo
+    // photo resize & crop
     photo.cover(
       285,
       305,
@@ -38,20 +38,19 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
       Jimp.VERTICAL_ALIGN_MIDDLE
     );
 
-    // place photo
+    // photo position (neeche shift)
     template.composite(photo, 75, 520);
 
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-    // add name
+    // name position (neeche)
     template.print(font, 115, 910, name, 260);
 
-    // add number
-    template.print(font, 115, 970, number, 260);
+    // number position (neeche)
+    template.print(font, 115, 975, number, 260);
 
     const fileName = "poster-" + Date.now() + ".png";
 
-    // save poster
     await template.writeAsync(path.join("public", fileName));
 
     res.send(`
