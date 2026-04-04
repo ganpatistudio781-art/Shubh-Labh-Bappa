@@ -22,10 +22,15 @@ app.get("/", (req, res) => {
 app.post("/generate", upload.single("photo"), async (req, res) => {
   try {
     const { name, number } = req.body;
+
+    if (!req.file) throw new Error("No photo uploaded!");
     const userPhotoPath = req.file.path;
 
     // Load template & user photo
-    const template = await Jimp.read(path.join(__dirname, "template-upload/poster-template.png"));
+    const templatePath = path.join(__dirname, "template-upload/poster-template.png");
+    if (!fs.existsSync(templatePath)) throw new Error("Template image not found!");
+
+    const template = await Jimp.read(templatePath);
     const photo = await Jimp.read(userPhotoPath);
 
     // Resize and place photo
@@ -55,7 +60,8 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
 
     // Save final poster in public folder
     const fileName = "poster-" + Date.now() + ".png";
-    await template.writeAsync(path.join(__dirname, "public", fileName));
+    const outputPath = path.join(__dirname, "public", fileName);
+    await template.writeAsync(outputPath);
 
     // Delete uploaded user photo
     fs.unlinkSync(userPhotoPath);
@@ -72,9 +78,10 @@ app.post("/generate", upload.single("photo"), async (req, res) => {
       </body>
       </html>
     `);
+
   } catch (err) {
-    console.log(err);
-    res.send("Error generating poster");
+    console.error("Poster Generation Error:", err);
+    res.send("Error generating poster: " + err.message);
   }
 });
 
