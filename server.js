@@ -2,8 +2,6 @@ const express = require("express");
 const multer = require("multer");
 const Jimp = require("jimp");
 const path = require("path");
-const fs = require("fs");
-const convert = require("heic-convert");
 
 const app = express();
 
@@ -13,97 +11,93 @@ app.use(express.urlencoded({ extended: true }));
 const upload = multer({ dest: "uploads/" });
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.post("/generate", upload.single("photo"), async (req, res) => {
 
-  try {
+try {
 
-    const name = req.body.name;
-    const number = req.body.number;
+const name = req.body.name;
+const number = req.body.number;
 
-    let photoPath = req.file.path;
+const template = await Jimp.read("template-upload/poster-template.png");
+const photo = await Jimp.read(req.file.path);
 
-    // Detect HEIC
-    if (
-      req.file.mimetype === "image/heic" ||
-      req.file.mimetype === "image/heif"
-    ) {
+photo.cover(320,320);
 
-      const inputBuffer = fs.readFileSync(photoPath);
+template.composite(photo,95,620);
 
-      const outputBuffer = await convert({
-        buffer: inputBuffer,
-        format: "JPEG",
-        quality: 1
-      });
+const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-      const newPath = photoPath + ".jpg";
+template.print(font,180,1045,name);
 
-      fs.writeFileSync(newPath, outputBuffer);
+template.print(font,180,1125,number);
 
-      photoPath = newPath;
-    }
+template.print(font,220,1180,"आप सभी को बैसाखी की हार्दिक शुभकामनाएँ");
 
-    // Template load
-    const template = await Jimp.read(
-      path.join(__dirname, "template-upload", "Poster-template.png")
-    );
+template.print(font,360,1230,"शुभ लाभ बप्पा");
 
-    // Photo load
-    const photo = await Jimp.read(photoPath);
+const fileName = "poster-"+Date.now()+".png";
 
-    photo.cover(
-      245,
-      342,
-      Jimp.HORIZONTAL_ALIGN_CENTER,
-      Jimp.VERTICAL_ALIGN_MIDDLE
-    );
+await template.writeAsync("public/"+fileName);
 
-    template.composite(photo, 78, 580);
+const posterURL = `${req.protocol}://${req.get("host")}/${fileName}`;
 
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+res.send(`
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poster Ready</title>
+</head>
 
-    template.print(font, 112, 1006, name, 260);
-    template.print(font, 112, 1080, number, 260);
+<body style="text-align:center;font-family:Arial;background:#f2f2f2">
 
-    const fileName = "poster-" + Date.now() + ".png";
+<h2>आपका पोस्टर तैयार है 🎉</h2>
 
-    const outputPath = path.join(__dirname, "public", fileName);
+<img src="/${fileName}" style="width:350px;border-radius:10px">
 
-    await template.writeAsync(outputPath);
+<br><br>
 
-    res.send(`
-      <html>
-      <body style="text-align:center;font-family:Arial">
+<a href="/${fileName}" download>
+<button style="padding:12px 20px;font-size:16px;background:#ff6a00;color:white;border:none;border-radius:6px">
+पोस्टर डाउनलोड करें
+</button>
+</a>
 
-      <h2>Poster Ready 🎉</h2>
+<br><br>
 
-      <img src="/${fileName}" style="width:350px"><br><br>
+<a href="https://wa.me/?text=आप सभी को बैसाखी की हार्दिक शुभकामनाएँ%0A%0A${posterURL}%0A%0Aशुभ लाभ बप्पा">
+<button style="padding:12px 20px;font-size:16px;background:green;color:white;border:none;border-radius:6px">
+WhatsApp पर शेयर करें
+</button>
+</a>
 
-      <a href="/${fileName}" download>
-      <button style="padding:10px 20px;font-size:16px">
-      Download Poster
-      </button>
-      </a>
+<br><br>
 
-      </body>
-      </html>
-    `);
+<a href="/">
+<button style="padding:10px 18px;font-size:14px;background:#444;color:white;border:none;border-radius:6px">
+नया पोस्टर बनाएं
+</button>
+</a>
 
-  } catch (err) {
+</body>
+</html>
+`);
 
-    console.log("ERROR:", err);
+}
 
-    res.send("Poster Generate Error ⚠️ <br>" + err.message);
+catch(err){
 
-  }
+console.log(err);
+res.send("Poster generate error");
+
+}
 
 });
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+app.listen(PORT,()=>{
+console.log("Server chal raha hai");
 });
