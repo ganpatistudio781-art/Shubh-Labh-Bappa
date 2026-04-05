@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 
@@ -6,7 +5,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Shubh Labh Poster Generator</title>
+<title>Festival Poster Generator</title>
 
 <style>
 
@@ -19,28 +18,13 @@ margin:0;
 .header{
 background:#ff6a00;
 color:white;
-padding:40px 15px 15px 15px;
+padding:15px;
 text-align:center;
 font-size:22px;
-position:relative;
-}
-
-.left-corner{
-position:absolute;
-left:10px;
-top:10px;
-font-size:14px;
-}
-
-.right-corner{
-position:absolute;
-right:10px;
-top:10px;
-font-size:14px;
 }
 
 .container{
-max-width:450px;
+max-width:420px;
 margin:auto;
 background:white;
 padding:20px;
@@ -49,13 +33,31 @@ border-radius:10px;
 box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
 
+.poster-preview{
+position:relative;
+}
+
 .poster-preview img{
 width:100%;
-max-width:350px;
-height:auto;
-display:block;
-margin:auto;
 border-radius:10px;
+}
+
+#previewName{
+position:absolute;
+left:180px;
+top:520px;
+font-weight:bold;
+color:black;
+font-size:18px;
+}
+
+#previewNumber{
+position:absolute;
+left:180px;
+top:560px;
+font-weight:bold;
+color:black;
+font-size:18px;
 }
 
 input{
@@ -77,17 +79,6 @@ border-radius:5px;
 cursor:pointer;
 }
 
-.youtube{
-display:block;
-margin-top:15px;
-background:red;
-color:white;
-text-decoration:none;
-padding:10px;
-border-radius:5px;
-text-align:center;
-}
-
 .footer{
 text-align:center;
 margin-top:20px;
@@ -102,47 +93,67 @@ color:#777;
 <body>
 
 <div class="header">
-
-<div class="left-corner">
-Shubh Labh Bappa
-</div>
-
-Shubh Labh Festival Poster Generator
-
-<div class="right-corner">
-Ganpati Studio
-</div>
-
+शुभ लाभ बप्पा - Festival Poster Generator
 </div>
 
 <div class="container">
 
 <div class="poster-preview">
+
 <img src="poster-preview.png">
+
+<div id="previewName">नाम</div>
+<div id="previewNumber">मोबाइल नंबर</div>
+
 </div>
 
 <form action="/generate" method="POST" enctype="multipart/form-data">
 
-<input type="text" name="name" placeholder="Enter Your Name" required>
+<input type="text" id="nameInput" name="name" placeholder="अपना नाम लिखें" required>
 
-<input type="text" name="number" placeholder="Mobile Number" required>
+<input type="text" id="numberInput" name="number" placeholder="मोबाइल नंबर" required>
 
-<!-- Camera + Gallery option -->
 <input type="file" name="photo" accept="image/*" required>
 
-<button type="submit">Generate Poster</button>
+<button type="submit">पोस्टर बनाएं</button>
 
 </form>
-
-<a class="youtube" href="https://youtube.com/@ganpati_shubhlabh23?si=MFL6abbDMBVQT9Z4" target="_blank">
-Visit Our YouTube Channel
-</a>
 
 </div>
 
 <div class="footer">
 Powered by Shubh Labh Bappa
 </div>
+
+<script>
+
+const nameInput = document.getElementById("nameInput");
+const numberInput = document.getElementById("numberInput");
+
+const previewName = document.getElementById("previewName");
+const previewNumber = document.getElementById("previewNumber");
+
+nameInput.addEventListener("input",function(){
+
+if(this.value===""){
+previewName.innerText="नाम";
+}else{
+previewName.innerText=this.value;
+}
+
+});
+
+numberInput.addEventListener("input",function(){
+
+if(this.value===""){
+previewNumber.innerText="मोबाइल नंबर";
+}else{
+previewNumber.innerText=this.value;
+}
+
+});
+
+</script>
 
 </body>
 
