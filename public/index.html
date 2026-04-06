@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html>
 
 <head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Poster Generator</title>
 
@@ -33,35 +33,37 @@ border-radius:10px;
 margin-top:10px;
 }
 
-.poster-preview{
+.poster{
 position:relative;
 }
 
-.poster-preview img{
+.poster img{
 width:100%;
 }
 
 #photoPreview{
 position:absolute;
-left:7.2%;
-top:42.9%;
-width:22.7%;
-height:25.3%;
+left:7%;
+top:43%;
+width:23%;
+height:25%;
 object-fit:cover;
 }
 
-#previewName{
+#namePreview{
 position:absolute;
-left:10.4%;
-top:74.5%;
+left:10%;
+top:74%;
 font-weight:bold;
+font-size:18px;
 }
 
-#previewNumber{
+#numberPreview{
 position:absolute;
-left:10.4%;
+left:10%;
 top:80%;
 font-weight:bold;
+font-size:18px;
 }
 
 input{
@@ -76,6 +78,11 @@ padding:12px;
 background:#ff6a00;
 color:white;
 border:none;
+}
+
+.yt{
+text-align:center;
+margin-top:10px;
 }
 
 </style>
@@ -94,43 +101,61 @@ border:none;
 
 <div class="container">
 
-<div class="poster-preview">
+<div class="poster">
 
 <img src="poster-preview.png">
 
 <img id="photoPreview">
 
-<div id="previewName">नाम</div>
+<div id="namePreview">Your Name</div>
 
-<div id="previewNumber">मोबाइल नंबर</div>
+<div id="numberPreview">Mobile Number</div>
 
 </div>
 
-<form action="/generate" method="POST" enctype="multipart/form-data">
+<form id="form">
 
-<input type="text" name="name" id="nameInput" placeholder="नाम">
+<input type="text" id="name" placeholder="Enter your name">
 
-<input type="text" name="number" id="numberInput" placeholder="मोबाइल नंबर">
+<input type="text" id="number" placeholder="Enter mobile number">
 
-<input type="file" name="photo" id="photoInput" accept="image/*">
+<input type="file" id="photo" accept="image/*">
 
-<button type="submit">पोस्टर बनाएं</button>
+<button type="button" onclick="generate()">Generate Poster</button>
 
 </form>
+
+<div class="yt">
+
+<a href="https://youtube.com/@YOURCHANNEL" target="_blank">
+
+Visit our YouTube Channel
+
+</a>
+
+</div>
 
 </div>
 
 <script>
 
+const nameInput=document.getElementById("name");
+const numberInput=document.getElementById("number");
+const photoInput=document.getElementById("photo");
+
+const namePreview=document.getElementById("namePreview");
+const numberPreview=document.getElementById("numberPreview");
+const photoPreview=document.getElementById("photoPreview");
+
 nameInput.oninput=()=>{
-previewName.innerText=nameInput.value||"नाम";
+namePreview.innerText=nameInput.value || "Your Name";
 }
 
 numberInput.oninput=()=>{
-previewNumber.innerText=numberInput.value||"मोबाइल नंबर";
+numberPreview.innerText=numberInput.value || "Mobile Number";
 }
 
-photoInput.addEventListener("change",function(){
+photoInput.onchange=function(){
 
 const file=this.files[0];
 
@@ -139,16 +164,20 @@ if(file){
 const reader=new FileReader();
 
 reader.onload=function(e){
-
 photoPreview.src=e.target.result;
-
 }
 
 reader.readAsDataURL(file);
 
 }
 
-});
+}
+
+function generate(){
+
+alert("Poster preview ready. Take screenshot or download coming soon.");
+
+}
 
 </script>
 
