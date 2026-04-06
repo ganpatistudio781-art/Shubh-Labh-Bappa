@@ -4,112 +4,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shubh Labh Poster Generator</title>
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f2f2f2;
-  margin: 0;
-  padding: 0;
-}
+body { font-family: Arial; background:#f2f2f2; margin:0; padding:0; }
+.header { background:#ff6a00; color:white; display:flex; justify-content:space-between; align-items:center; padding:8px 12px; font-size:14px; flex-wrap:wrap; }
+.header div { flex:1; text-align:center; }
+.header .left { text-align:left; }
+.header .right { text-align:right; }
+.header .center { font-weight:bold; font-size:16px; }
 
-.header {
-  background: #ff6a00;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  font-size: 14px;
-  flex-wrap: wrap;
-}
+.container { max-width:360px; width:95%; margin:15px auto; background:white; padding:18px; border-radius:12px; box-shadow:0 0 12px rgba(0,0,0,0.2); text-align:center; }
 
-.header div {
-  flex: 1;
-  text-align: center;
-}
+input{width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:14px;}
+button{width:100%; padding:12px; background:#ff6a00; border:none; color:white; font-size:16px; border-radius:6px; cursor:pointer; margin-top:10px; font-weight:bold;}
 
-.header .left {
-  text-align: left;
-}
+.ytBox{ text-align:center; margin-top:18px;}
+.ytBtn{ display:inline-block; background:#FF0000; color:white; padding:12px 18px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:15px; transition:0.3s;}
+.ytBtn:hover{ background:#CC0000; transform:scale(1.05);}
 
-.header .right {
-  text-align: right;
-}
-
-.header .center {
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.container {
-  max-width: 360px; /* Narrower for mobile */
-  width: 95%;
-  margin: 15px auto;
-  background: white;
-  padding: 18px;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.2);
-  text-align: center;
-}
-
-.poster-preview {
-  width:100%;
-  height:auto;
-  border-radius:10px;
-  margin-bottom:12px;
-  border:1px solid #ccc;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  border:1px solid #ccc;
-  border-radius:6px;
-  box-sizing: border-box;
-  font-size:14px;
-}
-
-button{
-  width:100%;
-  padding:12px;
-  background:#ff6a00;
-  border:none;
-  color:white;
-  font-size:16px;
-  border-radius:6px;
-  cursor:pointer;
-  margin-top:10px;
-  font-weight:bold;
-}
-
-.ytBox{
-  text-align:center;
-  margin-top:18px;
-}
-
-.ytBtn{
-  display:inline-block;
-  background:#FF0000;
-  color:white;
-  padding:12px 18px;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:bold;
-  font-size:15px;
-  transition: 0.3s;
-}
-
-.ytBtn:hover{
-  background:#CC0000;
-  transform: scale(1.05);
-}
-
-.footer{
-  text-align:center;
-  margin-top:15px;
-  color:#666;
-  font-size:13px;
-}
+.footer{ text-align:center; margin-top:15px; color:#666; font-size:13px;}
 </style>
 </head>
 <body>
@@ -121,88 +32,23 @@ button{
 </div>
 
 <div class="container">
-<canvas id="posterCanvas" class="poster-preview"></canvas>
+  <form action="/submit" method="POST" enctype="multipart/form-data">
+    <input type="text" name="name" placeholder="Enter Your Name" required>
+    <input type="text" name="number" placeholder="Mobile Number" required>
+    <input type="file" name="photo" accept="image/*" required>
+    <button type="submit">Submit & Save</button>
+  </form>
 
-<input type="text" id="nameInput" placeholder="Enter Your Name" required>
-<input type="text" id="numberInput" placeholder="Mobile Number" required>
-<input type="file" id="photoInput" accept="image/*">
+  <div class="ytBox">
+    <a href="https://youtube.com/@ganpati_shubhlabh23?si=EIVGRNugp3gW044P" target="_blank" class="ytBtn">
+      ▶ Visit Our YouTube Channel
+    </a>
+  </div>
 
-<button id="downloadBtn">Generate & Download Poster</button>
-
-<div class="ytBox">
-<a href="https://youtube.com/@ganpati_shubhlabh23?si=EIVGRNugp3gW044P" target="_blank" class="ytBtn">
-▶ Visit Our YouTube Channel
-</a>
+  <div class="footer">
+    Powered by Shubh Labh Bappa
+  </div>
 </div>
-
-<div class="footer">
-Powered by Shubh Labh Bappa
-</div>
-</div>
-
-<script>
-const canvas = document.getElementById("posterCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = 1080;
-canvas.height = 1350;
-
-const baseImage = new Image();
-baseImage.src = "poster-preview.png";
-
-const nameInput = document.getElementById("nameInput");
-const numberInput = document.getElementById("numberInput");
-const photoInput = document.getElementById("photoInput");
-let userPhoto = new Image();
-
-// Adjusted Coordinates (Right & Down)
-const photoFrame = {x:95, y:620, width:245, height:342}; 
-const nameCoord = {x:125, y:1026}; 
-const numberCoord = {x:125, y:1100}; 
-
-function drawPoster(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(baseImage,0,0,canvas.width,canvas.height);
-
-  if(userPhoto.src){
-    let scale = Math.max(photoFrame.width / userPhoto.width, photoFrame.height / userPhoto.height);
-    let w = userPhoto.width * scale;
-    let h = userPhoto.height * scale;
-    let x = photoFrame.x - (w - photoFrame.width)/2;
-    let y = photoFrame.y - (h - photoFrame.height)/2;
-    ctx.drawImage(userPhoto, x, y, w, h);
-  }
-
-  ctx.font = "bold 40px Arial";
-  ctx.fillStyle = "black";
-  ctx.fillText(nameInput.value, nameCoord.x, nameCoord.y);
-  ctx.fillText(numberInput.value, numberCoord.x, numberCoord.y);
-}
-
-// Event listeners
-photoInput.addEventListener("change", function(e){
-  const file = e.target.files[0];
-  if(file){
-    const reader = new FileReader();
-    reader.onload = function(evt){
-      userPhoto.src = evt.target.result;
-      userPhoto.onload = drawPoster;
-    }
-    reader.readAsDataURL(file);
-  }
-});
-
-nameInput.addEventListener("input", drawPoster);
-numberInput.addEventListener("input", drawPoster);
-baseImage.onload = drawPoster;
-
-// Download
-document.getElementById("downloadBtn").addEventListener("click", function(){
-  const link = document.createElement("a");
-  link.download = "poster.png";
-  link.href = canvas.toDataURL();
-  link.click();
-});
-</script>
 
 </body>
 </html>
