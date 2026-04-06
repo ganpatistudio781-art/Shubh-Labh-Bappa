@@ -1,63 +1,77 @@
-const express = require('express');
-const multer = require('multer');
-const Jimp = require('jimp');
-const fs = require('fs');
-const path = require('path');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ganpati Poster Generator</title>
+<style>
+    body { font-family: Arial; margin:0; padding:0; text-align:center; background:#fff; }
+    header, footer { background:#f8f8f8; padding:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; }
+    header h2, header h3, header h4 { margin:0; font-size:14px; }
+    .container { max-width:360px; margin:20px auto; padding:10px; }
+    input, button { width:100%; padding:10px; margin:8px 0; font-size:16px; }
+    button { background:red; color:white; border:none; cursor:pointer; }
+    button:hover { opacity:0.8; }
+    #preview { margin-top:20px; width:100%; height:auto; border:1px solid #ccc; }
+</style>
+</head>
+<body>
 
-const app = express();
-const PORT = 3000;
+<header>
+    <h2>Ganpati Studio</h2>
+    <h3>Shubh Labh Poster Preview</h3>
+    <h4>Shubh Labh Bappa</h4>
+</header>
 
-app.use(express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+<div class="container">
+    <input type="text" id="name" placeholder="Enter Name" required>
+    <input type="text" id="mobile" placeholder="Enter Mobile Number" required>
+    <input type="file" id="photo" accept="image/*" capture="user" required>
+    <button id="generateBtn">Generate Ganpati Poster</button>
+    
+    <img id="preview" src="poster-preview.png" alt="Poster Preview">
+</div>
 
-// Multer config for file upload
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage });
+<footer>
+    <span>Powered by Shubh Labh Bappa</span>
+    <a href="https://youtube.com/@ganpati_shubhlabh23?si=EIVGRNugp3gW044P" target="_blank">
+        <button style="background:red;">YouTube Channel</button>
+    </a>
+</footer>
 
-// Endpoint to handle poster generation
-app.post('/generate', upload.single('photo'), async (req, res) => {
+<script>
+document.getElementById('generateBtn').addEventListener('click', async () => {
+    const name = document.getElementById('name').value.trim();
+    const mobile = document.getElementById('mobile').value.trim();
+    const photo = document.getElementById('photo').files[0];
+
+    if(!name || !mobile || !photo) return alert('All fields are required!');
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('mobile', mobile);
+    formData.append('photo', photo);
+
     try {
-        const { name, mobile } = req.body;
-        const photoPath = req.file.path;
-        const templatePath = 'public/poster-preview.png';
-
-        // Load template and user photo
-        const template = await Jimp.read(templatePath);
-        const userPhoto = await Jimp.read(photoPath);
-
-        // Resize & crop user photo
-        userPhoto.cover(245, 342); // exact dimensions
-        template.composite(userPhoto, 78, 580); // coordinates
-
-        // Load font
-        const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
-
-        // Add text
-        template.print(font, 112, 1006, name);
-        template.print(font, 112, 1080, mobile);
-
-        // Save generated poster
-        const outputFile = `generated/poster_${Date.now()}.png`;
-        await template.writeAsync(outputFile);
-
-        // Save user details
-        const dataFile = 'uploads/data.json';
-        let users = [];
-        if (fs.existsSync(dataFile)) {
-            users = JSON.parse(fs.readFileSync(dataFile));
-        }
-        users.push({ name, mobile, photo: photoPath, poster: outputFile, timestamp: new Date() });
-        fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
-
-        res.json({ poster: outputFile });
-    } catch (err) {
+        const res = await fetch('/generate', { method:'POST', body:formData });
+        const data = await res.json();
+        if(data.poster){
+            document.getElementById('preview').src = data.poster;
+            
+            // Auto download
+            const a = document.createElement('a');
+            a.href = data.poster;
+            a.download = 'GanpatiPoster.png';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } else alert('Error generating poster!');
+    } catch(err) {
+        alert('Something went wrong!');
         console.error(err);
-        res.status(500).json({ error: 'Poster generation failed!' });
     }
 });
+</script>
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+</body>
+</html>
