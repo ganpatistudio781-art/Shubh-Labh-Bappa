@@ -1,7 +1,6 @@
 {
   "name": "poster-project",
   "version": "1.0.0",
-  "description": "Poster Generator",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
