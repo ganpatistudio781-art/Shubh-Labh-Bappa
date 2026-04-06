@@ -1,53 +1,52 @@
-const express = require("express");
-const multer = require("multer");
-const sharp = require("sharp");
-const fs = require("fs");
+const express=require("express");
+const multer=require("multer");
+const sharp=require("sharp");
+const fs=require("fs");
 
-const app = express();
+const app=express();
 
 app.use(express.static("public"));
 app.use(express.urlencoded({extended:true}));
 
-const upload = multer({dest:"uploads/"});
+const upload=multer({dest:"uploads/"});
 
-app.post("/generate", upload.single("photo"), async(req,res)=>{
+app.post("/generate",upload.single("photo"),async(req,res)=>{
 
 try{
 
-const name=req.body.name;
-const number=req.body.number;
-
 if(!req.file){
-return res.send("Photo upload nahi hui");
+throw new Error("Photo upload nahi hui");
 }
+
+const name=req.body.name||"";
+const number=req.body.number||"";
 
 const template="template-upload/poster-template.png";
 
-const outputFile="poster-"+Date.now()+".png";
-const outputPath="public/"+outputFile;
+const output="public/poster-"+Date.now()+".png";
 
 /* USER PHOTO */
 
-const userPhoto=await sharp(req.file.path)
+const photo=await sharp(req.file.path)
 .resize(245,342)
 .toBuffer();
 
 /* TEXT SVG */
 
-const svgText=`
+const svg=`
 <svg width="1080" height="1350">
 
 <style>
 
 .name{
 fill:black;
-font-size:40px;
+font-size:42px;
 font-weight:bold;
 }
 
 .number{
 fill:black;
-font-size:38px;
+font-size:40px;
 font-weight:bold;
 }
 
@@ -60,28 +59,19 @@ font-weight:bold;
 </svg>
 `;
 
-/* POSTER CREATE */
-
 await sharp(template)
 
 .composite([
-{
-input:userPhoto,
-top:580,
-left:78
-},
-{
-input:Buffer.from(svgText),
-top:0,
-left:0
-}
+{input:photo,top:580,left:78},
+{input:Buffer.from(svg),top:0,left:0}
 ])
 
-.toFile(outputPath);
+.png({quality:90})
+.toFile(output);
 
 fs.unlinkSync(req.file.path);
 
-/* RESULT PAGE */
+const fileName=output.replace("public/","");
 
 res.send(`
 
@@ -89,7 +79,7 @@ res.send(`
 
 <head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <style>
 
@@ -97,18 +87,27 @@ body{
 font-family:Arial;
 text-align:center;
 background:#f2f2f2;
+margin:0;
 padding:20px;
+}
+
+.container{
+max-width:420px;
+margin:auto;
+background:white;
+padding:15px;
+border-radius:10px;
 }
 
 img{
 width:100%;
-max-width:420px;
 border-radius:10px;
 }
 
 button{
-padding:12px 20px;
-margin:10px;
+width:100%;
+padding:12px;
+margin-top:10px;
 border:none;
 border-radius:6px;
 font-size:16px;
@@ -130,24 +129,23 @@ color:white;
 
 <body>
 
+<div class="container">
+
 <h2>🎉 आपका पोस्टर तैयार है</h2>
 
-<img src="/${outputFile}">
+<img src="/${fileName}">
 
-<br>
-
-<a href="/${outputFile}" download>
+<a href="/${fileName}" download>
 <button class="download">पोस्टर डाउनलोड करें</button>
 </a>
 
-<br>
-
-<a href="https://wa.me/?text=बैसाखी की हार्दिक शुभकामनाएं 🌾%0A%0Aअपना पोस्टर बनाएं:%0A${req.headers.host}">
+<a href="https://wa.me/?text=बैसाखी की हार्दिक शुभकामनाएं 🌾">
 <button class="whatsapp">WhatsApp पर शेयर करें</button>
 </a>
 
-</body>
+</div>
 
+</body>
 </html>
 
 `);
@@ -156,7 +154,10 @@ color:white;
 
 console.log(err);
 
-res.send("Poster generating error");
+res.send(`
+<h2>Poster generating error</h2>
+<p>${err.message}</p>
+`);
 
 }
 
