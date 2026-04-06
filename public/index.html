@@ -1,77 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-<meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ganpati Poster Generator</title>
+
+<title>Shubh Labh Poster Generator</title>
+
 <style>
-    body { font-family: Arial; margin:0; padding:0; text-align:center; background:#fff; }
-    header, footer { background:#f8f8f8; padding:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; }
-    header h2, header h3, header h4 { margin:0; font-size:14px; }
-    .container { max-width:360px; margin:20px auto; padding:10px; }
-    input, button { width:100%; padding:10px; margin:8px 0; font-size:16px; }
-    button { background:red; color:white; border:none; cursor:pointer; }
-    button:hover { opacity:0.8; }
-    #preview { margin-top:20px; width:100%; height:auto; border:1px solid #ccc; }
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+}
+
+.header{
+background:#ff6a00;
+color:white;
+padding:40px 15px 15px 15px;
+text-align:center;
+font-size:22px;
+position:relative;
+}
+
+.left-corner{
+position:absolute;
+left:10px;
+top:10px;
+font-size:14px;
+}
+
+.right-corner{
+position:absolute;
+right:10px;
+top:10px;
+font-size:14px;
+}
+
+.container{
+max-width:450px;
+margin:auto;
+background:white;
+padding:20px;
+margin-top:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.poster-preview img{
+width:100%;
+max-width:350px;
+height:auto;
+display:block;
+margin:auto;
+border-radius:10px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#ff6a00;
+border:none;
+color:white;
+font-size:16px;
+border-radius:5px;
+cursor:pointer;
+}
+
+.youtube{
+display:block;
+margin-top:15px;
+background:red;
+color:white;
+text-decoration:none;
+padding:10px;
+border-radius:5px;
+text-align:center;
+}
+
+.footer{
+text-align:center;
+margin-top:20px;
+padding:10px;
+color:#777;
+}
+
 </style>
+
 </head>
+
 <body>
 
-<header>
-    <h2>Ganpati Studio</h2>
-    <h3>Shubh Labh Poster Preview</h3>
-    <h4>Shubh Labh Bappa</h4>
-</header>
+<div class="header">
 
-<div class="container">
-    <input type="text" id="name" placeholder="Enter Name" required>
-    <input type="text" id="mobile" placeholder="Enter Mobile Number" required>
-    <input type="file" id="photo" accept="image/*" capture="user" required>
-    <button id="generateBtn">Generate Ganpati Poster</button>
-    
-    <img id="preview" src="poster-preview.png" alt="Poster Preview">
+<div class="left-corner">
+Shubh Labh Bappa
 </div>
 
-<footer>
-    <span>Powered by Shubh Labh Bappa</span>
-    <a href="https://youtube.com/@ganpati_shubhlabh23?si=EIVGRNugp3gW044P" target="_blank">
-        <button style="background:red;">YouTube Channel</button>
-    </a>
-</footer>
+Shubh Labh Festival Poster Generator
 
-<script>
-document.getElementById('generateBtn').addEventListener('click', async () => {
-    const name = document.getElementById('name').value.trim();
-    const mobile = document.getElementById('mobile').value.trim();
-    const photo = document.getElementById('photo').files[0];
+<div class="right-corner">
+Ganpati Studio
+</div>
 
-    if(!name || !mobile || !photo) return alert('All fields are required!');
+</div>
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('mobile', mobile);
-    formData.append('photo', photo);
+<div class="container">
 
-    try {
-        const res = await fetch('/generate', { method:'POST', body:formData });
-        const data = await res.json();
-        if(data.poster){
-            document.getElementById('preview').src = data.poster;
-            
-            // Auto download
-            const a = document.createElement('a');
-            a.href = data.poster;
-            a.download = 'GanpatiPoster.png';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        } else alert('Error generating poster!');
-    } catch(err) {
-        alert('Something went wrong!');
-        console.error(err);
-    }
-});
-</script>
+<div class="poster-preview">
+<img src="poster-preview.png">
+</div>
+
+<form action="/generate" method="POST" enctype="multipart/form-data">
+
+<input type="text" name="name" placeholder="Enter Your Name" required>
+
+<input type="text" name="number" placeholder="Mobile Number" required>
+
+<!-- Camera + Gallery option -->
+<input type="file" name="photo" accept="image/*" required>
+
+<button type="submit">Generate Poster</button>
+
+</form>
+
+<a class="youtube" href="https://youtube.com/@ganpati_shubhlabh23?si=MFL6abbDMBVQT9Z4" target="_blank">
+Visit Our YouTube Channel
+</a>
+
+</div>
+
+<div class="footer">
+Powered by Shubh Labh Bappa
+</div>
 
 </body>
+
 </html>
