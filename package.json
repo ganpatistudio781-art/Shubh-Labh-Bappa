@@ -1,21 +1,15 @@
 {
-  "name": "ganpati-poster-generator",
+  "name": "poster-project",
   "version": "1.0.0",
-  "description": "Ganpati Festival Poster Generator Website",
+  "description": "Festival Poster Generator",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "4.18.2",
-    "multer": "1.4.5",
-    "jimp": "0.22.10",
-    "cors": "2.8.5",
-    "body-parser": "1.20.2"
-  },
-  "engines": {
-    "node": "22.x",
-    "npm": "9.x"
-  },
-  "license": "MIT"
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "jimp": "^0.16.13",
+    "heic-convert": "^2.0.0"
+  }
 }
