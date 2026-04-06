@@ -1,11 +1,16 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html>
 
 <head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Festival Poster Generator</title>
+<link rel="preload" as="image" href="poster-preview.png">
+
+<title>Festival Poster Maker</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
 
 <style>
 
@@ -29,83 +34,53 @@ max-width:420px;
 margin:auto;
 background:white;
 padding:15px;
-margin-top:10px;
 border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.2);
+margin-top:10px;
 }
 
 .poster-preview{
 position:relative;
-width:100%;
 }
 
 .poster-preview img{
 width:100%;
-display:block;
 }
-
-/* PHOTO */
 
 #photoPreview{
 position:absolute;
-
 left:7.2%;
 top:42.9%;
-
 width:22.7%;
 height:25.3%;
-
 object-fit:cover;
 }
 
-/* NAME */
-
 #previewName{
 position:absolute;
-
-left:10.3%;
+left:10.4%;
 top:74.5%;
-
-font-size:18px;
 font-weight:bold;
-color:black;
 }
-
-/* NUMBER */
 
 #previewNumber{
 position:absolute;
-
-left:10.3%;
+left:10.4%;
 top:80%;
-
-font-size:18px;
 font-weight:bold;
-color:black;
 }
 
 input{
 width:100%;
 padding:10px;
 margin:10px 0;
-border:1px solid #ccc;
-border-radius:5px;
 }
 
 button{
 width:100%;
 padding:12px;
 background:#ff6a00;
-border:none;
 color:white;
-font-size:16px;
-border-radius:5px;
-}
-
-.footer{
-text-align:center;
-margin-top:20px;
-color:#777;
+border:none;
 }
 
 </style>
@@ -126,7 +101,7 @@ color:#777;
 
 <div class="poster-preview">
 
-<img src="poster-preview.png">
+<img src="poster-preview.png" loading="eager">
 
 <img id="photoPreview">
 
@@ -138,11 +113,11 @@ color:#777;
 
 <form action="/generate" method="POST" enctype="multipart/form-data">
 
-<input type="text" id="nameInput" name="name" placeholder="अपना नाम लिखें" required>
+<input type="text" name="name" id="nameInput" placeholder="नाम">
 
-<input type="text" id="numberInput" name="number" placeholder="मोबाइल नंबर" required>
+<input type="text" name="number" id="numberInput" placeholder="मोबाइल नंबर">
 
-<input type="file" id="photoInput" name="photo" accept="image/*" required>
+<input type="file" id="fileInput" name="photo" accept="image/*">
 
 <button type="submit">पोस्टर बनाएं</button>
 
@@ -150,37 +125,19 @@ color:#777;
 
 </div>
 
-<div class="footer">
-Powered by Shubh Labh Bappa
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
 
-/* NAME PREVIEW */
+nameInput.oninput=()=>{
+previewName.innerText=nameInput.value||"नाम";
+}
 
-const nameInput=document.getElementById("nameInput");
-const previewName=document.getElementById("previewName");
+numberInput.oninput=()=>{
+previewNumber.innerText=numberInput.value||"मोबाइल नंबर";
+}
 
-nameInput.addEventListener("input",function(){
-
-previewName.innerText=this.value||"नाम";
-
-});
-
-/* NUMBER PREVIEW */
-
-const numberInput=document.getElementById("numberInput");
-const previewNumber=document.getElementById("previewNumber");
-
-numberInput.addEventListener("input",function(){
-
-previewNumber.innerText=this.value||"मोबाइल नंबर";
-
-});
-
-/* PHOTO PREVIEW */
-
-const photoInput=document.getElementById("photoInput");
+const photoInput=document.getElementById("fileInput");
 const photoPreview=document.getElementById("photoPreview");
 
 photoInput.addEventListener("change",function(){
