@@ -3,49 +3,51 @@ const multer = require('multer');
 const Jimp = require('jimp');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// Middleware
+app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Multer config for file upload
+// Multer setup for uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// Endpoint to handle poster generation
+// Poster generation endpoint
 app.post('/generate', upload.single('photo'), async (req, res) => {
     try {
         const { name, mobile } = req.body;
         const photoPath = req.file.path;
-        const templatePath = 'public/poster-preview.png';
+        const templatePath = path.join(__dirname, 'public/poster-preview.png');
 
-        // Load template and user photo
         const template = await Jimp.read(templatePath);
         const userPhoto = await Jimp.read(photoPath);
 
         // Resize & crop user photo
-        userPhoto.cover(245, 342); // exact dimensions
-        template.composite(userPhoto, 78, 580); // coordinates
+        userPhoto.cover(245, 342);
+        template.composite(userPhoto, 78, 580);
 
         // Load font
         const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
-        // Add text
+        // Print name & mobile
         template.print(font, 112, 1006, name);
         template.print(font, 112, 1080, mobile);
 
         // Save generated poster
-        const outputFile = `generated/poster_${Date.now()}.png`;
+        const outputFile = path.join('generated', `poster_${Date.now()}.png`);
         await template.writeAsync(outputFile);
 
         // Save user details
-        const dataFile = 'uploads/data.json';
+        const dataFile = path.join('uploads', 'data.json');
         let users = [];
         if (fs.existsSync(dataFile)) {
             users = JSON.parse(fs.readFileSync(dataFile));
@@ -60,4 +62,5 @@ app.post('/generate', upload.single('photo'), async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+// Start server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
