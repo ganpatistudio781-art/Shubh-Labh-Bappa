@@ -6,58 +6,93 @@ const fs = require("fs");
 const app = express();
 
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended:true}));
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({dest:"uploads/"});
 
-app.post("/generate", upload.single("photo"), async (req, res) => {
+app.post("/generate", upload.single("photo"), async(req,res)=>{
 
-try {
+try{
 
-const name = req.body.name;
-const number = req.body.number;
+const name=req.body.name;
+const number=req.body.number;
 
-if (!req.file) {
+if(!req.file){
 return res.send("Photo upload nahi hui");
 }
 
-const template = "template-upload/poster-template.png";
+const template="template-upload/poster-template.png";
 
-const output = "public/poster-" + Date.now() + ".png";
+const outputFile="poster-"+Date.now()+".png";
+const outputPath="public/"+outputFile;
 
-/* PHOTO RESIZE */
+/* USER PHOTO */
 
-const photo = await sharp(req.file.path)
-.resize(350,350)
+const userPhoto=await sharp(req.file.path)
+.resize(245,342)
 .toBuffer();
 
-/* COMPOSITE */
+/* TEXT SVG */
+
+const svgText=`
+<svg width="1080" height="1350">
+
+<style>
+
+.name{
+fill:black;
+font-size:40px;
+font-weight:bold;
+}
+
+.number{
+fill:black;
+font-size:38px;
+font-weight:bold;
+}
+
+</style>
+
+<text x="112" y="1006" class="name">${name}</text>
+
+<text x="112" y="1080" class="number">${number}</text>
+
+</svg>
+`;
+
+/* POSTER CREATE */
 
 await sharp(template)
+
 .composite([
 {
-input:photo,
-top:560,
-left:80
+input:userPhoto,
+top:580,
+left:78
+},
+{
+input:Buffer.from(svgText),
+top:0,
+left:0
 }
 ])
-.toFile(output);
 
-/* DELETE TEMP */
+.toFile(outputPath);
 
 fs.unlinkSync(req.file.path);
 
-/* RESPONSE */
-
-const fileName = output.replace("public/","");
+/* RESULT PAGE */
 
 res.send(`
+
 <html>
+
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Poster Ready</title>
 
 <style>
+
 body{
 font-family:Arial;
 text-align:center;
@@ -67,7 +102,7 @@ padding:20px;
 
 img{
 width:100%;
-max-width:400px;
+max-width:420px;
 border-radius:10px;
 }
 
@@ -88,6 +123,7 @@ color:white;
 background:green;
 color:white;
 }
+
 </style>
 
 </head>
@@ -96,35 +132,38 @@ color:white;
 
 <h2>🎉 आपका पोस्टर तैयार है</h2>
 
-<img src="/${fileName}">
+<img src="/${outputFile}">
 
 <br>
 
-<a href="/${fileName}" download>
+<a href="/${outputFile}" download>
 <button class="download">पोस्टर डाउनलोड करें</button>
 </a>
 
 <br>
 
-<a href="https://wa.me/?text=बैसाखी की हार्दिक शुभकामनाएं 🌾">
+<a href="https://wa.me/?text=बैसाखी की हार्दिक शुभकामनाएं 🌾%0A%0Aअपना पोस्टर बनाएं:%0A${req.headers.host}">
 <button class="whatsapp">WhatsApp पर शेयर करें</button>
 </a>
 
 </body>
+
 </html>
+
 `);
 
-} catch(err){
+}catch(err){
 
 console.log(err);
+
 res.send("Poster generating error");
 
 }
 
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT=process.env.PORT||3000;
 
-app.listen(PORT, () => {
+app.listen(PORT,()=>{
 console.log("Server chal raha hai");
 });
