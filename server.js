@@ -4,79 +4,90 @@ const fs = require("fs");
 
 const app = express();
 
-app.use(express.static("public"));
-app.use(express.urlencoded({extended:true}));
-
-const upload = multer({dest:"uploads/"});
-
-const dataFile = "uploads/data.json";
-
-/* Ensure uploads folder + data.json exists */
+/* ensure folders exist */
 
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
+if (!fs.existsSync("public")) {
+  fs.mkdirSync("public");
+}
+
+/* ensure data file */
+
+const dataFile = "uploads/data.json";
+
 if (!fs.existsSync(dataFile)) {
   fs.writeFileSync(dataFile, "[]");
 }
 
-app.post("/generate", upload.single("photo"), (req,res)=>{
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
 
-try{
+const upload = multer({ dest: "uploads/" });
 
-if(!req.file){
+app.post("/generate", upload.single("photo"), (req, res) => {
+
+try {
+
+if (!req.file) {
 throw new Error("Photo upload nahi hui");
 }
 
-const name=req.body.name||"";
-const number=req.body.number||"";
+const name = req.body.name || "";
+const number = req.body.number || "";
 
 /* read users */
 
 let users = JSON.parse(fs.readFileSync(dataFile));
 
 users.push({
-name:name,
-number:number
+name: name,
+number: number
 });
 
-/* save users */
+/* save */
 
-fs.writeFileSync(dataFile, JSON.stringify(users,null,2));
+fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
 
-const newFile="poster-"+Date.now()+".png";
+const newFile = "poster-" + Date.now() + ".png";
 
-fs.copyFileSync(req.file.path,"public/"+newFile);
+fs.copyFileSync(req.file.path, "public/" + newFile);
 
 fs.unlinkSync(req.file.path);
 
 res.send(`
 <h2>Poster Ready</h2>
+
 <img src="/${newFile}" style="width:300px">
+
 <br><br>
+
 <a href="/${newFile}" download>Download Poster</a>
 `);
 
-}catch(err){
+} catch (err) {
 
-res.send("Error: "+err.message);
+res.send("Error: " + err.message);
 
 }
 
 });
 
-app.get("/developer",(req,res)=>{
+/* developer page */
+
+app.get("/developer", (req, res) => {
 
 let users = JSON.parse(fs.readFileSync(dataFile));
 
-let html="<h2>Users</h2>";
+let html = "<h2>Users</h2>";
 
-users.forEach(u=>{
+users.forEach(u => {
 
-const link=\`https://wa.me/91\${u.number}?text=Ganpati Studio ki taraf se shubhkamnaye \${u.name}\`;
+const link = `https://wa.me/91${u.number}?text=Ganpati Studio ki taraf se shubhkamnaye ${u.name}`;
 
-html+=\`<p>\${u.name} - <a href="\${link}" target="_blank">Send</a></p>\`;
+html += `<p>${u.name} - <a href="${link}" target="_blank">Send</a></p>`;
 
 });
 
@@ -86,6 +97,6 @@ res.send(html);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT,()=>{
-console.log("Server running");
+app.listen(PORT, () => {
+console.log("Server running on port " + PORT);
 });
