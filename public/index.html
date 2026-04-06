@@ -5,22 +5,52 @@
 <title>Shubh Labh Poster Generator</title>
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: #f2f2f2;
   margin: 0;
   padding: 0;
 }
+
+.header {
+  background: #ff6a00;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  font-size: 16px;
+  flex-wrap: wrap;
+}
+
+.header div {
+  flex: 1;
+  text-align: center;
+}
+
+.header .left {
+  text-align: left;
+}
+
+.header .right {
+  text-align: right;
+}
+
+.header .center {
+  font-weight: bold;
+  font-size: 18px;
+}
+
 .container {
   max-width: 450px;
   width: 95%;
-  margin: auto;
+  margin: 20px auto;
   background: white;
   padding: 20px;
-  margin-top: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
   text-align: center;
 }
+
 .poster-preview {
   width:100%;
   max-width:350px;
@@ -29,14 +59,17 @@ body {
   margin-bottom:10px;
   border:1px solid #ccc;
 }
+
 input{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin:10px 0;
   border:1px solid #ccc;
-  border-radius:5px;
+  border-radius:6px;
   box-sizing: border-box;
+  font-size:14px;
 }
+
 button{
   width:100%;
   padding:12px;
@@ -44,14 +77,17 @@ button{
   border:none;
   color:white;
   font-size:16px;
-  border-radius:5px;
+  border-radius:6px;
   cursor:pointer;
-  margin-top:10px;
+  margin-top:12px;
+  font-weight:bold;
 }
+
 .ytBox{
   text-align:center;
   margin-top:15px;
 }
+
 .ytBtn{
   display:inline-block;
   background:red;
@@ -61,6 +97,7 @@ button{
   text-decoration:none;
   font-weight:bold;
 }
+
 .footer{
   text-align:center;
   margin-top:20px;
@@ -71,9 +108,13 @@ button{
 </head>
 <body>
 
-<div class="container">
-<h2>Shubh Labh Poster Generator</h2>
+<div class="header">
+  <div class="left">Ganpati Studio</div>
+  <div class="center">Shubh Labh Poster Generator</div>
+  <div class="right">Shubh Labh Bappa</div>
+</div>
 
+<div class="container">
 <canvas id="posterCanvas" class="poster-preview"></canvas>
 
 <input type="text" id="nameInput" placeholder="Enter Your Name" required>
