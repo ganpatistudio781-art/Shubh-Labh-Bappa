@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="hi">
 
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Festival Poster Generator</title>
 
 <style>
@@ -15,23 +14,32 @@ background:#f2f2f2;
 margin:0;
 }
 
+/* HEADER */
+
 .header{
+display:flex;
+justify-content:space-between;
+align-items:center;
 background:#ff6a00;
 color:white;
-padding:15px;
-text-align:center;
-font-size:22px;
+padding:12px 15px;
+font-weight:bold;
+font-size:18px;
 }
+
+/* CONTAINER */
 
 .container{
 max-width:420px;
 margin:auto;
 background:white;
-padding:20px;
-margin-top:20px;
+padding:15px;
+margin-top:10px;
 border-radius:10px;
 box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
+
+/* POSTER PREVIEW */
 
 .poster-preview{
 position:relative;
@@ -44,23 +52,44 @@ display:block;
 border-radius:10px;
 }
 
+/* PHOTO PREVIEW */
+
+#photoPreview{
+position:absolute;
+left:6%;
+top:42%;
+width:32%;
+height:20%;
+object-fit:cover;
+border-radius:6px;
+display:none;
+}
+
+/* NAME PREVIEW */
+
 #previewName{
 position:absolute;
-left:170px;
-top:960px;
+left:32%;
+top:73%;
+transform:translateX(-50%);
 font-weight:bold;
-font-size:22px;
+font-size:18px;
 color:black;
 }
 
+/* NUMBER PREVIEW */
+
 #previewNumber{
 position:absolute;
-left:210px;
-top:1030px;
+left:40%;
+top:78%;
+transform:translateX(-50%);
 font-weight:bold;
-font-size:22px;
+font-size:18px;
 color:black;
 }
+
+/* INPUTS */
 
 input{
 width:100%;
@@ -69,6 +98,8 @@ margin:10px 0;
 border:1px solid #ccc;
 border-radius:5px;
 }
+
+/* BUTTON */
 
 button{
 width:100%;
@@ -81,11 +112,21 @@ border-radius:5px;
 cursor:pointer;
 }
 
+/* ZOOM SLIDER */
+
+.slider{
+width:100%;
+margin:10px 0;
+}
+
+/* FOOTER */
+
 .footer{
 text-align:center;
 margin-top:20px;
 padding:10px;
 color:#777;
+font-size:14px;
 }
 
 </style>
@@ -95,7 +136,8 @@ color:#777;
 <body>
 
 <div class="header">
-शुभ लाभ बप्पा - Festival Poster Generator
+<div>Ganpati Studio</div>
+<div>Shubh Labh Bappa</div>
 </div>
 
 <div class="container">
@@ -103,6 +145,8 @@ color:#777;
 <div class="poster-preview">
 
 <img src="poster-preview.png">
+
+<img id="photoPreview">
 
 <div id="previewName">नाम</div>
 <div id="previewNumber">मोबाइल नंबर</div>
@@ -115,7 +159,10 @@ color:#777;
 
 <input type="text" id="numberInput" name="number" placeholder="मोबाइल नंबर" required>
 
-<input type="file" name="photo" accept="image/*" required>
+<input type="file" id="photoInput" name="photo" accept="image/*" required>
+
+<label>फोटो Zoom</label>
+<input type="range" min="1" max="2" step="0.1" value="1" id="zoomSlider" class="slider">
 
 <button type="submit">पोस्टर बनाएं</button>
 
@@ -129,11 +176,10 @@ Powered by Shubh Labh Bappa
 
 <script>
 
-const nameInput = document.getElementById("nameInput");
-const numberInput = document.getElementById("numberInput");
+/* NAME LIVE PREVIEW */
 
+const nameInput = document.getElementById("nameInput");
 const previewName = document.getElementById("previewName");
-const previewNumber = document.getElementById("previewNumber");
 
 nameInput.addEventListener("input",function(){
 
@@ -145,6 +191,11 @@ previewName.innerText=this.value;
 
 });
 
+/* NUMBER LIVE PREVIEW */
+
+const numberInput = document.getElementById("numberInput");
+const previewNumber = document.getElementById("previewNumber");
+
 numberInput.addEventListener("input",function(){
 
 if(this.value===""){
@@ -155,8 +206,43 @@ previewNumber.innerText=this.value;
 
 });
 
+/* PHOTO PREVIEW */
+
+const photoInput=document.getElementById("photoInput");
+const photoPreview=document.getElementById("photoPreview");
+
+photoInput.addEventListener("change",function(){
+
+const file=this.files[0];
+
+if(file){
+
+const reader=new FileReader();
+
+reader.onload=function(e){
+
+photoPreview.src=e.target.result;
+photoPreview.style.display="block";
+
+}
+
+reader.readAsDataURL(file);
+
+}
+
+});
+
+/* PHOTO ZOOM */
+
+const zoomSlider=document.getElementById("zoomSlider");
+
+zoomSlider.addEventListener("input",function(){
+
+photoPreview.style.transform="scale("+this.value+")";
+
+});
+
 </script>
 
 </body>
-
 </html>
