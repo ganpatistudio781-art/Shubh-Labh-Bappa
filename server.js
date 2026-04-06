@@ -3,68 +3,66 @@ const multer = require("multer");
 const Jimp = require("jimp");
 const path = require("path");
 const fs = require("fs");
-const bodyParser = require("body-parser");
 
 const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+// Generated folder ko static banaya taaki browser se access ho sake
+app.use("/generated", express.static(path.join(__dirname, "generated")));
 
-// Upload config
 const upload = multer({ dest: "uploads/" });
 
-// Ensure folders exist
-if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
-if (!fs.existsSync("uploads/data.json")) fs.writeFileSync("uploads/data.json", "[]");
-if (!fs.existsSync("generated")) fs.mkdirSync("generated");
+// Folders ensure karna (Render startup ke liye zaroori)
+const folders = ["uploads", "generated"];
+folders.forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+});
 
-// Homepage
+const dataPath = path.join(__dirname, "uploads/data.json");
+if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, "[]");
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-// User submit form
-app.post("/submit", upload.single("photo"), async (req, res) => {
-  const { name, number } = req.body;
-  const photoPath = req.file.path;
-
-  // Save user details
-  const users = JSON.parse(fs.readFileSync("uploads/data.json"));
-  users.push({ name, number, photoPath });
-  fs.writeFileSync("uploads/data.json", JSON.stringify(users, null, 2));
-
-  // Generate poster
+app.post("/generate", upload.single("photo"), async (req, res) => {
   try {
-    const template = await Jimp.read("public/poster-preview.png");
+    const { name, number } = req.body;
+    const photoPath = req.file.path;
+
+    // Save user details safely
+    const rawData = fs.readFileSync(dataPath);
+    const users = JSON.parse(rawData);
+    users.push({ name, number, photoPath, time: new Date() });
+    fs.writeFileSync(dataPath, JSON.stringify(users, null, 2));
+
+    // Load Template and User Photo
+    const templatePath = path.join(__dirname, "public/poster-preview.png");
+    const template = await Jimp.read(templatePath);
     const photo = await Jimp.read(photoPath);
 
-    // Crop + zoom photo
+    // Crop & resize photo to 245x342
     photo.cover(245, 342);
+    template.composite(photo, 78, 580);
 
-    // Place photo
-    template.composite(photo, 95, 620);
-
-    // Font for name & number
+    // Load font (Built-in Jimp font)
     const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
-    template.print(font, 125, 1006, name);
-    template.print(font, 125, 1080, number);
+    template.print(font, 112, 1006, name);
+    template.print(font, 112, 1080, number);
 
+    // Save final poster
     const fileName = `poster-${Date.now()}.png`;
-    const filePath = path.join("generated", fileName);
-    await template.writeAsync(filePath);
+    const outputPath = path.join(__dirname, "generated", fileName);
+    await template.writeAsync(outputPath);
 
-    res.send(`
-      <h2>Poster Ready 🎉</h2>
-      <img src="/generated/${fileName}" style="width:300px;border-radius:10px"><br><br>
-      <a href="/generated/${fileName}" download>
-        <button style="padding:10px 20px;font-size:16px;background:#ff6a00;color:white;border:none;border-radius:6px;cursor:pointer">Download Poster</button>
-      </a>
-      <p><a href="/">Go Back</a></p>
-    `);
+    // Return the file for download
+    res.sendFile(outputPath);
+
   } catch (err) {
-    console.log("Poster Generate Error:", err);
-    res.send("<h2>Poster Generate Error ⚠️</h2><p>Check console for details.</p><a href='/'>Go Back</a>");
+    console.error("Error generating poster:", err);
+    res.status(500).json({ error: "Poster Generate Error ⚠️" });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on port", PORT));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
