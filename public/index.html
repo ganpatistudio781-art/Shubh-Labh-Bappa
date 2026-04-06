@@ -4,24 +4,101 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shubh Labh Poster Generator</title>
 <style>
-body { font-family: Arial; background:#f2f2f2; margin:0; padding:0; }
-.header { background:#ff6a00; color:white; display:flex; justify-content:space-between; align-items:center; padding:8px 12px; font-size:14px; flex-wrap:wrap; }
-.header div { flex:1; text-align:center; }
-.header .left { text-align:left; }
-.header .right { text-align:right; }
-.header .center { font-weight:bold; font-size:16px; }
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
 
-.container { max-width:360px; width:95%; margin:15px auto; background:white; padding:18px; border-radius:12px; box-shadow:0 0 12px rgba(0,0,0,0.2); text-align:center; }
+.header {
+    background: #ff6a00;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    font-size: 14px;
+}
 
-input{width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:14px;}
-button{width:100%; padding:12px; background:#ff6a00; border:none; color:white; font-size:16px; border-radius:6px; cursor:pointer; margin-top:10px; font-weight:bold;}
+.header div {
+    flex: 1;
+    text-align: center;
+}
 
-.ytBox{ text-align:center; margin-top:18px;}
-.ytBtn{ display:inline-block; background:#FF0000; color:white; padding:12px 18px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:15px; transition:0.3s;}
-.ytBtn:hover{ background:#CC0000; transform:scale(1.05);}
+.header .left { text-align: left; font-weight: bold; }
+.header .center { text-align: center; font-weight: bold; font-size: 16px; }
+.header .right { text-align: right; font-weight: bold; }
 
-.footer{ text-align:center; margin-top:15px; color:#666; font-size:13px;}
-.poster-preview img { width:100%; border-radius:12px; margin-top:10px; }
+.container {
+    max-width: 95%;
+    width: 360px;
+    margin: 15px auto;
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.poster-preview img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #ff6a00;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+button:hover { background: #e65c00; }
+
+.ytBox {
+    text-align: center;
+    margin-top: 18px;
+}
+
+.ytBtn {
+    display: inline-block;
+    background: #FF0000;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+    transition: 0.3s;
+}
+.ytBtn:hover { background: #CC0000; transform: scale(1.05); }
+
+.footer {
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+    font-size: 13px;
+}
 </style>
 </head>
 <body>
@@ -41,7 +118,7 @@ button{width:100%; padding:12px; background:#ff6a00; border:none; color:white; f
     <input type="text" name="name" placeholder="Enter Your Name" required>
     <input type="text" name="number" placeholder="Mobile Number" required>
     <input type="file" name="photo" accept="image/*" required>
-    <button type="submit">Generate & Download Poster</button>
+    <button type="submit">Generate Ganpati Poster</button>
   </form>
 
   <div class="ytBox">
