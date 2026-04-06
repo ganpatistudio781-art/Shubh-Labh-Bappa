@@ -19,7 +19,7 @@ if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, "[]");
 // Ensure generated folder exists
 if (!fs.existsSync("generated")) fs.mkdirSync("generated");
 
-// Homepage
+// Homepage (preview only)
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
@@ -29,17 +29,18 @@ app.post("/submit", upload.single("photo"), (req, res) => {
   const { name, number } = req.body;
   const photoPath = req.file.path;
 
+  // Save to data.json
   const users = JSON.parse(fs.readFileSync(dataFile));
   users.push({ name, number, photoPath });
   fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
 
   res.send(`
-    <h2>Thank you! Your details are saved.</h2>
+    <h2>Thank you! Your poster will be ready automatically for the festival.</h2>
     <p><a href="/">Go Back</a></p>
   `);
 });
 
-// Admin: generate all posters
+// Admin: Generate posters for all users
 app.get("/generate-all", async (req, res) => {
   const users = JSON.parse(fs.readFileSync(dataFile));
   let generated = [];
@@ -50,8 +51,8 @@ app.get("/generate-all", async (req, res) => {
       const photo = await Jimp.read(user.photoPath);
 
       // Crop + Zoom photo
-      photo.cover(245, 342); // width x height
-      template.composite(photo, 95, 620); // X,Y coordinates
+      photo.cover(245, 342);
+      template.composite(photo, 95, 620);
 
       // Font for name & number
       const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
@@ -71,14 +72,4 @@ app.get("/generate-all", async (req, res) => {
   res.send(`
     <h2>Posters Generated ✅</h2>
     <ul>
-      ${generated.map(f => `<li><a href="/generated/${f}" target="_blank">${f}</a></li>`).join("")}
-    </ul>
-    <p><a href="/">Back to Homepage</a></p>
-  `);
-});
-
-// Serve generated posters
-app.use("/generated", express.static(path.join(__dirname, "generated")));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on port", PORT));
+      ${
