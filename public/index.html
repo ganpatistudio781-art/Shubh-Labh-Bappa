@@ -21,17 +21,22 @@ button{width:100%; padding:12px; background:#ff6a00; border:none; color:white; f
 .ytBtn:hover{ background:#CC0000; transform:scale(1.05);}
 
 .footer{ text-align:center; margin-top:15px; color:#666; font-size:13px;}
+.poster-preview img { width:100%; border-radius:12px; margin-top:10px; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="left">Ganpati Studio</div>
-  <div class="center">Shubh Labh Poster Generator</div>
+  <div class="center">Shubh Labh Poster Preview</div>
   <div class="right">Shubh Labh Bappa</div>
 </div>
 
 <div class="container">
+  <div class="poster-preview">
+    <img src="poster-preview.png" alt="Poster Template">
+  </div>
+
   <form action="/submit" method="POST" enctype="multipart/form-data">
     <input type="text" name="name" placeholder="Enter Your Name" required>
     <input type="text" name="number" placeholder="Mobile Number" required>
