@@ -1,102 +1,84 @@
 const express = require("express");
 const multer = require("multer");
+const Jimp = require("jimp");
+const path = require("path");
 const fs = require("fs");
+const bodyParser = require("body-parser");
 
 const app = express();
-
-/* ensure folders exist */
-
-if (!fs.existsSync("uploads")) {
-  fs.mkdirSync("uploads");
-}
-
-if (!fs.existsSync("public")) {
-  fs.mkdirSync("public");
-}
-
-/* ensure data file */
-
-const dataFile = "uploads/data.json";
-
-if (!fs.existsSync(dataFile)) {
-  fs.writeFileSync(dataFile, "[]");
-}
-
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
 
+// Upload config
 const upload = multer({ dest: "uploads/" });
 
-app.post("/generate", upload.single("photo"), (req, res) => {
+// Ensure data.json exists
+const dataFile = "uploads/data.json";
+if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, "[]");
 
-try {
+// Ensure generated folder exists
+if (!fs.existsSync("generated")) fs.mkdirSync("generated");
 
-if (!req.file) {
-throw new Error("Photo upload nahi hui");
-}
-
-const name = req.body.name || "";
-const number = req.body.number || "";
-
-/* read users */
-
-let users = JSON.parse(fs.readFileSync(dataFile));
-
-users.push({
-name: name,
-number: number
+// Homepage
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-/* save */
+// User submit form
+app.post("/submit", upload.single("photo"), (req, res) => {
+  const { name, number } = req.body;
+  const photoPath = req.file.path;
 
-fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
+  const users = JSON.parse(fs.readFileSync(dataFile));
+  users.push({ name, number, photoPath });
+  fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
 
-const newFile = "poster-" + Date.now() + ".png";
-
-fs.copyFileSync(req.file.path, "public/" + newFile);
-
-fs.unlinkSync(req.file.path);
-
-res.send(`
-<h2>Poster Ready</h2>
-
-<img src="/${newFile}" style="width:300px">
-
-<br><br>
-
-<a href="/${newFile}" download>Download Poster</a>
-`);
-
-} catch (err) {
-
-res.send("Error: " + err.message);
-
-}
-
+  res.send(`
+    <h2>Thank you! Your details are saved.</h2>
+    <p><a href="/">Go Back</a></p>
+  `);
 });
 
-/* developer page */
+// Admin: generate all posters
+app.get("/generate-all", async (req, res) => {
+  const users = JSON.parse(fs.readFileSync(dataFile));
+  let generated = [];
 
-app.get("/developer", (req, res) => {
+  for (let user of users) {
+    try {
+      const template = await Jimp.read("public/poster-preview.png");
+      const photo = await Jimp.read(user.photoPath);
 
-let users = JSON.parse(fs.readFileSync(dataFile));
+      // Crop + Zoom photo
+      photo.cover(245, 342); // width x height
+      template.composite(photo, 95, 620); // X,Y coordinates
 
-let html = "<h2>Users</h2>";
+      // Font for name & number
+      const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+      template.print(font, 125, 1006, user.name);
+      template.print(font, 125, 1080, user.number);
 
-users.forEach(u => {
+      const fileName = `poster-${user.name.replace(/ /g, "_")}.png`;
+      const filePath = path.join("generated", fileName);
+      await template.writeAsync(filePath);
 
-const link = `https://wa.me/91${u.number}?text=Ganpati Studio ki taraf se shubhkamnaye ${u.name}`;
+      generated.push(fileName);
+    } catch (err) {
+      console.log("Error generating poster for", user.name, err);
+    }
+  }
 
-html += `<p>${u.name} - <a href="${link}" target="_blank">Send</a></p>`;
-
+  res.send(`
+    <h2>Posters Generated ✅</h2>
+    <ul>
+      ${generated.map(f => `<li><a href="/generated/${f}" target="_blank">${f}</a></li>`).join("")}
+    </ul>
+    <p><a href="/">Back to Homepage</a></p>
+  `);
 });
 
-res.send(html);
-
-});
+// Serve generated posters
+app.use("/generated", express.static(path.join(__dirname, "generated")));
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-console.log("Server running on port " + PORT);
-});
+app.listen(PORT, () => console.log("Server running on port", PORT));
