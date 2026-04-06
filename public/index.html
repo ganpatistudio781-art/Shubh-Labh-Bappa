@@ -4,6 +4,7 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Festival Poster Generator</title>
 
 <style>
@@ -14,20 +15,14 @@ background:#f2f2f2;
 margin:0;
 }
 
-/* HEADER */
-
 .header{
 display:flex;
 justify-content:space-between;
-align-items:center;
 background:#ff6a00;
 color:white;
-padding:12px 15px;
+padding:12px;
 font-weight:bold;
-font-size:18px;
 }
-
-/* CONTAINER */
 
 .container{
 max-width:420px;
@@ -39,8 +34,6 @@ border-radius:10px;
 box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
 
-/* POSTER PREVIEW */
-
 .poster-preview{
 position:relative;
 width:100%;
@@ -49,47 +42,47 @@ width:100%;
 .poster-preview img{
 width:100%;
 display:block;
-border-radius:10px;
 }
 
-/* PHOTO PREVIEW */
+/* PHOTO */
 
 #photoPreview{
 position:absolute;
-left:6%;
-top:42%;
-width:32%;
-height:20%;
+
+left:7.2%;
+top:42.9%;
+
+width:22.7%;
+height:25.3%;
+
 object-fit:cover;
-border-radius:6px;
-display:none;
 }
 
-/* NAME PREVIEW */
+/* NAME */
 
 #previewName{
 position:absolute;
-left:32%;
-top:73%;
-transform:translateX(-50%);
-font-weight:bold;
+
+left:10.3%;
+top:74.5%;
+
 font-size:18px;
+font-weight:bold;
 color:black;
 }
 
-/* NUMBER PREVIEW */
+/* NUMBER */
 
 #previewNumber{
 position:absolute;
-left:40%;
-top:78%;
-transform:translateX(-50%);
-font-weight:bold;
+
+left:10.3%;
+top:80%;
+
 font-size:18px;
+font-weight:bold;
 color:black;
 }
-
-/* INPUTS */
 
 input{
 width:100%;
@@ -99,8 +92,6 @@ border:1px solid #ccc;
 border-radius:5px;
 }
 
-/* BUTTON */
-
 button{
 width:100%;
 padding:12px;
@@ -109,24 +100,12 @@ border:none;
 color:white;
 font-size:16px;
 border-radius:5px;
-cursor:pointer;
 }
-
-/* ZOOM SLIDER */
-
-.slider{
-width:100%;
-margin:10px 0;
-}
-
-/* FOOTER */
 
 .footer{
 text-align:center;
 margin-top:20px;
-padding:10px;
 color:#777;
-font-size:14px;
 }
 
 </style>
@@ -136,8 +115,11 @@ font-size:14px;
 <body>
 
 <div class="header">
+
 <div>Ganpati Studio</div>
+
 <div>Shubh Labh Bappa</div>
+
 </div>
 
 <div class="container">
@@ -149,6 +131,7 @@ font-size:14px;
 <img id="photoPreview">
 
 <div id="previewName">नाम</div>
+
 <div id="previewNumber">मोबाइल नंबर</div>
 
 </div>
@@ -160,9 +143,6 @@ font-size:14px;
 <input type="text" id="numberInput" name="number" placeholder="मोबाइल नंबर" required>
 
 <input type="file" id="photoInput" name="photo" accept="image/*" required>
-
-<label>फोटो Zoom</label>
-<input type="range" min="1" max="2" step="0.1" value="1" id="zoomSlider" class="slider">
 
 <button type="submit">पोस्टर बनाएं</button>
 
@@ -176,33 +156,25 @@ Powered by Shubh Labh Bappa
 
 <script>
 
-/* NAME LIVE PREVIEW */
+/* NAME PREVIEW */
 
-const nameInput = document.getElementById("nameInput");
-const previewName = document.getElementById("previewName");
+const nameInput=document.getElementById("nameInput");
+const previewName=document.getElementById("previewName");
 
 nameInput.addEventListener("input",function(){
 
-if(this.value===""){
-previewName.innerText="नाम";
-}else{
-previewName.innerText=this.value;
-}
+previewName.innerText=this.value||"नाम";
 
 });
 
-/* NUMBER LIVE PREVIEW */
+/* NUMBER PREVIEW */
 
-const numberInput = document.getElementById("numberInput");
-const previewNumber = document.getElementById("previewNumber");
+const numberInput=document.getElementById("numberInput");
+const previewNumber=document.getElementById("previewNumber");
 
 numberInput.addEventListener("input",function(){
 
-if(this.value===""){
-previewNumber.innerText="मोबाइल नंबर";
-}else{
-previewNumber.innerText=this.value;
-}
+previewNumber.innerText=this.value||"मोबाइल नंबर";
 
 });
 
@@ -222,7 +194,6 @@ const reader=new FileReader();
 reader.onload=function(e){
 
 photoPreview.src=e.target.result;
-photoPreview.style.display="block";
 
 }
 
@@ -232,17 +203,8 @@ reader.readAsDataURL(file);
 
 });
 
-/* PHOTO ZOOM */
-
-const zoomSlider=document.getElementById("zoomSlider");
-
-zoomSlider.addEventListener("input",function(){
-
-photoPreview.style.transform="scale("+this.value+")";
-
-});
-
 </script>
 
 </body>
+
 </html>
